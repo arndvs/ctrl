@@ -1,4 +1,4 @@
-Always read global rule instructions first and confirm that you have done so by writing "Read Claude." in the chat:
+Always read global rule instructions first and confirm that you have done so by writing "Read Claude instructions." in the chat:
 
 @/home/aaron/dotfiles/global.instructions.md
 
