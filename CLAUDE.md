@@ -22,3 +22,6 @@ If tasked with an "audit", "code audit", or "codebase audit", also read:
 
 If instructed to act as a "technical fellow", also read:
 @~/dotfiles/instructions/technical-fellow.instructions.md
+
+If instructed to "make atomic commits" or "use atomic commits", also read:
+@~/dotfiles/instructions/atomic-commits.instructions.md
