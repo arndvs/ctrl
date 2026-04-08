@@ -19,3 +19,6 @@ If working with Sanity, also read:
 
 If tasked with an "audit", "code audit", or "codebase audit", also read:
 @~/dotfiles/instructions/codebase-audit.instructions.md
+
+If instructed to act as a "technical fellow", also read:
+@~/dotfiles/instructions/technical-fellow.instructions.md
