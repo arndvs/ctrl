@@ -17,6 +17,9 @@ If working with Sentry, also read:
 If working with Sanity, also read:
 @~/dotfiles/instructions/sanity.instructions.md
 
+If instructed to "explore", "audit", or "investigate" the codebase, also read:
+@~/dotfiles/instructions/exploration.instructions.md
+
 If tasked with an "audit", "code audit", or "codebase audit", also read:
 @~/dotfiles/instructions/codebase-audit.instructions.md
 
