@@ -2,32 +2,27 @@ Always read global rule instructions first and confirm that you have done so by 
 
 @~/dotfiles/global.instructions.md
 
-If this is a NextJS app, also read:
-@~/dotfiles/instructions/nextjs.instructions.md
+## Workspace-Detected Instructions
 
-If this is a PHP app, also read:
-@~/dotfiles/instructions/php.instructions.md
+Check the $ACTIVE_CONTEXTS environment variable (set by ~/dotfiles/bin/detect-context.sh). Load instructions matching each active context:
 
-If working with Google Docs, also read:
+- `nextjs` → @~/dotfiles/instructions/nextjs.instructions.md
+- `php` or `laravel` → @~/dotfiles/instructions/php.instructions.md
+- `sanity` → @~/dotfiles/instructions/sanity.instructions.md
+
+If $ACTIVE*CONTEXTS is not set, fall back to checking for file signatures (next.config.*, composer.json, sanity.config.\_, etc.) and load the matching instructions above.
+
+Output "Active: [list of detected contexts]." to chat (e.g. "Active: nextjs, sanity."). If no contexts were detected, output "Active: none."
+
+## Service-Triggered Instructions
+
+If working with Google Docs, Sheets, or Slides, also read:
 @~/dotfiles/instructions/google-docs.instructions.md
 
 If working with Sentry, also read:
 @~/dotfiles/instructions/sentry.instructions.md
 
-If working with Sanity, also read:
-@~/dotfiles/instructions/sanity.instructions.md
-
-If instructed to "explore", "audit", or "investigate" the codebase, also read:
-@~/dotfiles/instructions/exploration.instructions.md
-
-If tasked with an "audit", "code audit", or "codebase audit", also read:
-@~/dotfiles/instructions/codebase-audit.instructions.md
-
-If instructed to act as a "technical fellow", also read:
-@~/dotfiles/instructions/technical-fellow.instructions.md
-
-If instructed to "make atomic commits" or "use atomic commits", also read:
-@~/dotfiles/instructions/atomic-commits.instructions.md
+## Task-Triggered Instructions
 
 If working on copywriting, ads, email sequences, landing pages, or design, also read:
 @~/dotfiles/instructions/copywriting.instructions.md
