@@ -4,7 +4,7 @@ Always read global rule instructions first and confirm that you have done so by 
 
 ## Workspace-Detected Instructions
 
-Check the $ACTIVE_CONTEXTS environment variable (set by ~/dotfiles/bin/detect-context.sh). Load instructions matching each active context:
+Check the $ACTIVE_CONTEXTS environment variable (comma-separated, set by ~/dotfiles/bin/detect-context.sh). Load instructions matching each active context:
 
 - `nextjs` → @~/dotfiles/instructions/nextjs.instructions.md
 - `php` or `laravel` → @~/dotfiles/instructions/php.instructions.md
