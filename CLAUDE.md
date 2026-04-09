@@ -28,3 +28,9 @@ If instructed to act as a "technical fellow", also read:
 
 If instructed to "make atomic commits" or "use atomic commits", also read:
 @~/dotfiles/instructions/atomic-commits.instructions.md
+
+If working on copywriting, ads, email sequences, landing pages, or design, also read:
+@~/dotfiles/instructions/copywriting.instructions.md
+
+If working on CSS, styling, or frontend UI, also read:
+@~/dotfiles/instructions/css.instructions.md
