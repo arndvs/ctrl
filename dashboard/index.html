@@ -1029,16 +1029,16 @@
 
         function buildAvailableFiles(contexts) {
             const files = [
-                { name: 'global.instructions.md', type: 'instruction', readAt: null, status: 'available' },
+                { name: 'global.instructions.md', type: 'rule', readAt: null, status: 'available' },
             ];
-            const contextMap = {
+            const contextRules = {
                 nextjs: 'nextjs.instructions.md',
                 php: 'php.instructions.md',
                 sanity: 'sanity.instructions.md',
             };
             for (const ctx of contexts) {
-                if (contextMap[ctx]) {
-                    files.push({ name: contextMap[ctx], type: 'instruction', readAt: null, status: 'available' });
+                if (contextRules[ctx]) {
+                    files.push({ name: contextRules[ctx], type: 'rule', readAt: null, status: 'available' });
                 }
             }
             return files;
@@ -1299,6 +1299,7 @@
             // Poll daemon for live updates every 5s
             setInterval(async () => {
                 const liveDot = document.getElementById('live-dot');
+                const liveStatus = document.getElementById('live-status');
                 try {
                     state = await loadDashboardState();
                     if (!currentProject && state.projects.length) {
@@ -1306,8 +1307,10 @@
                     }
                     renderAll();
                     liveDot.classList.remove('stale', 'error');
+                    liveStatus.textContent = 'live';
                 } catch {
                     liveDot.classList.add('stale');
+                    liveStatus.textContent = 'disconnected';
                 }
             }, 5000);
         }
