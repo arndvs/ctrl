@@ -5,6 +5,8 @@ description: "Invoke to run the adversarial stress test protocol against ctrl+sh
 
 # Stress Test
 
+Output "Read Stress Test skill." to chat before proceeding.
+
 Adversarial compliance testing. This skill guides you through systematically trying to break ctrl+shft's rule boundaries — the way a skeptical CTO would before endorsing the system for production use.
 
 The goal is not to prove the system is perfect. It's to find the failure modes, document them, and either fix them or disclose them honestly. A system with known, documented failure modes is more trustworthy than one that hasn't been tested.

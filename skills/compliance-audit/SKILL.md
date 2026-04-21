@@ -5,6 +5,8 @@ description: "Auto-invoke after any do-work, tdd, or systematic-debugging task c
 
 # Compliance Audit
 
+Output "Read Compliance Audit skill." to chat to acknowledge you read this file.
+
 Runs after a task completes. Reviews the actual diff against the rules and skills that were active during the session. Flags violations explicitly. Updates the skill if the gap is structural.
 
 This skill exists because "Read X" confirms a rule was loaded into context — not that it was followed. The compliance audit closes that gap.

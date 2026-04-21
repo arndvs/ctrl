@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ctrl+shft — Compliance Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #080808;
@@ -18,21 +21,30 @@
             --text-dim: #9f9fa9;
             --text-dimmer: #555;
             --accent: #e8ff47;
-            --accent-dim: rgba(232,255,71,0.1);
+            --accent-dim: rgba(232, 255, 71, 0.1);
             --green: #44ff88;
-            --green-dim: rgba(68,255,136,0.1);
+            --green-dim: rgba(68, 255, 136, 0.1);
             --red: #ff4444;
-            --red-dim: rgba(255,68,68,0.1);
+            --red-dim: rgba(255, 68, 68, 0.1);
             --yellow: #ffcc44;
-            --yellow-dim: rgba(255,204,68,0.1);
+            --yellow-dim: rgba(255, 204, 68, 0.1);
             --blue: #4488ff;
-            --blue-dim: rgba(68,136,255,0.1);
+            --blue-dim: rgba(68, 136, 255, 0.1);
             --mono: 'IBM Plex Mono', monospace;
             --sans: 'IBM Plex Sans', sans-serif;
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-size: 62.5%; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
 
         body {
             background: var(--bg);
@@ -47,7 +59,7 @@
             content: '';
             position: fixed;
             inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.04) 2px, rgba(0, 0, 0, 0.04) 4px);
             pointer-events: none;
             z-index: 999;
         }
@@ -62,7 +74,7 @@
             justify-content: space-between;
             position: sticky;
             top: 0;
-            background: rgba(8,8,8,0.95);
+            background: rgba(8, 8, 8, 0.95);
             backdrop-filter: blur(12px);
             z-index: 100;
         }
@@ -116,12 +128,26 @@
             animation: pulse 2s ease infinite;
         }
 
-        .live-dot.stale { background: var(--yellow); animation: none; }
-        .live-dot.error { background: var(--red); animation: none; }
+        .live-dot.stale {
+            background: var(--yellow);
+            animation: none;
+        }
+
+        .live-dot.error {
+            background: var(--red);
+            animation: none;
+        }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         .last-updated {
@@ -157,7 +183,10 @@
             font-family: var(--mono);
         }
 
-        .project-tab:hover { background: var(--surface); color: var(--text-secondary); }
+        .project-tab:hover {
+            background: var(--surface);
+            color: var(--text-secondary);
+        }
 
         .project-tab.active {
             color: var(--accent);
@@ -171,9 +200,17 @@
             border-radius: 50%;
         }
 
-        .project-tab-dot.healthy { background: var(--green); }
-        .project-tab-dot.warning { background: var(--yellow); }
-        .project-tab-dot.error   { background: var(--red); }
+        .project-tab-dot.healthy {
+            background: var(--green);
+        }
+
+        .project-tab-dot.warning {
+            background: var(--yellow);
+        }
+
+        .project-tab-dot.error {
+            background: var(--red);
+        }
 
         /* ── MAIN LAYOUT ── */
         .main {
@@ -222,9 +259,17 @@
             font-size: 1.2rem;
         }
 
-        .sidebar-item:last-child { border-bottom: none; }
-        .sidebar-item:hover { background: var(--surface); }
-        .sidebar-item.active { background: var(--surface-2); }
+        .sidebar-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-item:hover {
+            background: var(--surface);
+        }
+
+        .sidebar-item.active {
+            background: var(--surface-2);
+        }
 
         .sidebar-item-icon {
             width: 1.6rem;
@@ -236,8 +281,14 @@
             font-size: 0.9rem;
         }
 
-        .sidebar-item-name { flex: 1; color: var(--text-secondary); }
-        .sidebar-item-name.active { color: var(--text); }
+        .sidebar-item-name {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-item-name.active {
+            color: var(--text);
+        }
 
         .status-badge {
             font-size: 0.85rem;
@@ -247,11 +298,34 @@
             border: 1px solid;
         }
 
-        .status-badge.pass   { color: var(--green);  border-color: var(--green);  background: var(--green-dim); }
-        .status-badge.fail   { color: var(--red);    border-color: var(--red);    background: var(--red-dim); }
-        .status-badge.warn   { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
-        .status-badge.loaded { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
-        .status-badge.idle   { color: var(--text-dimmer); border-color: var(--border-bright); }
+        .status-badge.pass {
+            color: var(--green);
+            border-color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .status-badge.fail {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .status-badge.warn {
+            color: var(--yellow);
+            border-color: var(--yellow);
+            background: var(--yellow-dim);
+        }
+
+        .status-badge.loaded {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .status-badge.idle {
+            color: var(--text-dimmer);
+            border-color: var(--border-bright);
+        }
 
         /* ── CONTENT PANEL ── */
         .content {
@@ -291,10 +365,21 @@
             letter-spacing: -0.02em;
         }
 
-        .stat-value.green  { color: var(--green); }
-        .stat-value.red    { color: var(--red); }
-        .stat-value.yellow { color: var(--yellow); }
-        .stat-value.accent { color: var(--accent); }
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.yellow {
+            color: var(--yellow);
+        }
+
+        .stat-value.accent {
+            color: var(--accent);
+        }
 
         .stat-sub {
             font-size: 1rem;
@@ -372,10 +457,18 @@
             transition: background 0.15s;
         }
 
-        .file-row:hover { background: var(--surface-2); }
+        .file-row:hover {
+            background: var(--surface-2);
+        }
 
-        .file-name { color: var(--text-secondary); font-family: var(--mono); }
-        .file-name .path { color: var(--text-dimmer); }
+        .file-name {
+            color: var(--text-secondary);
+            font-family: var(--mono);
+        }
+
+        .file-name .path {
+            color: var(--text-dimmer);
+        }
 
         .file-read-time {
             font-size: 1rem;
@@ -404,16 +497,38 @@
             transition: background 0.15s;
         }
 
-        .log-entry:hover { background: var(--surface-2); }
+        .log-entry:hover {
+            background: var(--surface-2);
+        }
 
-        .log-entry.read     { border-left-color: var(--accent); }
-        .log-entry.pass     { border-left-color: var(--green); }
-        .log-entry.fail     { border-left-color: var(--red); }
-        .log-entry.warn     { border-left-color: var(--yellow); }
-        .log-entry.info     { border-left-color: var(--blue); }
-        .log-entry.context  { border-left-color: var(--text-dimmer); }
+        .log-entry.read {
+            border-left-color: var(--accent);
+        }
 
-        .log-time { color: var(--text-dimmer); font-size: 1.05rem; }
+        .log-entry.pass {
+            border-left-color: var(--green);
+        }
+
+        .log-entry.fail {
+            border-left-color: var(--red);
+        }
+
+        .log-entry.warn {
+            border-left-color: var(--yellow);
+        }
+
+        .log-entry.info {
+            border-left-color: var(--blue);
+        }
+
+        .log-entry.context {
+            border-left-color: var(--text-dimmer);
+        }
+
+        .log-time {
+            color: var(--text-dimmer);
+            font-size: 1.05rem;
+        }
 
         .log-type {
             font-size: 0.9rem;
@@ -421,18 +536,50 @@
             text-transform: uppercase;
         }
 
-        .log-type.read    { color: var(--accent); }
-        .log-type.pass    { color: var(--green); }
-        .log-type.fail    { color: var(--red); }
-        .log-type.warn    { color: var(--yellow); }
-        .log-type.info    { color: var(--blue); }
-        .log-type.context { color: var(--text-dimmer); }
+        .log-type.read {
+            color: var(--accent);
+        }
 
-        .log-message { color: var(--text-secondary); line-height: 1.5; }
-        .log-message .highlight { color: var(--text); }
-        .log-message .path { color: var(--accent); }
-        .log-message .rule { color: var(--yellow); }
-        .log-message .violation { color: var(--red); }
+        .log-type.pass {
+            color: var(--green);
+        }
+
+        .log-type.fail {
+            color: var(--red);
+        }
+
+        .log-type.warn {
+            color: var(--yellow);
+        }
+
+        .log-type.info {
+            color: var(--blue);
+        }
+
+        .log-type.context {
+            color: var(--text-dimmer);
+        }
+
+        .log-message {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .log-message .highlight {
+            color: var(--text);
+        }
+
+        .log-message .path {
+            color: var(--accent);
+        }
+
+        .log-message .rule {
+            color: var(--yellow);
+        }
+
+        .log-message .violation {
+            color: var(--red);
+        }
 
         /* ── COMPLIANCE HISTORY ── */
         .compliance-chart {
@@ -477,9 +624,17 @@
             z-index: 10;
         }
 
-        .compliance-bar.high   { background: var(--green); }
-        .compliance-bar.medium { background: var(--yellow); }
-        .compliance-bar.low    { background: var(--red); }
+        .compliance-bar.high {
+            background: var(--green);
+        }
+
+        .compliance-bar.medium {
+            background: var(--yellow);
+        }
+
+        .compliance-bar.low {
+            background: var(--red);
+        }
 
         .compliance-bar-date {
             font-size: 0.85rem;
@@ -518,10 +673,29 @@
             flex-shrink: 0;
         }
 
-        .violation-severity.critical { color: var(--red);    border-color: var(--red);    background: var(--red-dim); }
-        .violation-severity.high     { color: var(--red);    border-color: var(--red);    background: var(--red-dim); opacity: 0.7; }
-        .violation-severity.medium   { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
-        .violation-severity.low      { color: var(--text-dim); border-color: var(--border-bright); }
+        .violation-severity.critical {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .violation-severity.high {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+            opacity: 0.7;
+        }
+
+        .violation-severity.medium {
+            color: var(--yellow);
+            border-color: var(--yellow);
+            background: var(--yellow-dim);
+        }
+
+        .violation-severity.low {
+            color: var(--text-dim);
+            border-color: var(--border-bright);
+        }
 
         .violation-body {
             padding: 1.2rem 1.6rem;
@@ -540,7 +714,11 @@
             color: var(--text-dimmer);
         }
 
-        .violation-meta span { display: flex; align-items: center; gap: 0.5rem; }
+        .violation-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
         /* ── EMPTY STATE ── */
         .empty-state {
@@ -559,19 +737,41 @@
         }
 
         /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-dimmer); }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-bright);
+            border-radius: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dimmer);
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
-            .main { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
-            .stat-row { grid-template-columns: repeat(2, 1fr); }
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .stat-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- HEADER -->
@@ -722,405 +922,399 @@
         </div>
     </div>
 
-<script>
-// ─────────────────────────────────────────────────────────────────────────────
-// ctrl+shft Compliance Dashboard
-//
-// In production this reads from:
-//   working/compliance-log.md        — audit history
-//   working/dashboard-state.json     — live session state written by agent hooks
-//   bin/detect-context.sh output     — active contexts
-//
-// In demo mode (no file access) it uses realistic synthetic data.
-// The dashboard shell is production-ready — wire up the data source
-// by replacing the loadDashboardState() function.
-// ─────────────────────────────────────────────────────────────────────────────
+    <script>
+        // ─────────────────────────────────────────────────────────────────────────────
+        // ctrl+shft Compliance Dashboard
+        //
+        // This dashboard reads live data from the application API.
+        // The browser client fetches current dashboard state from `/api/state`
+        // (and related API endpoints defined below), while the server-side API
+        // remains responsible for assembling data from compliance logs, session
+        // state, active contexts, and other runtime sources.
+        // ─────────────────────────────────────────────────────────────────────────────
 
-// ── State ────────────────────────────────────────────────────────────────────
-let currentProject = null;
-let state = null;
-const API_BASE = window.location.origin;
+        // ── State ────────────────────────────────────────────────────────────────────
+        let currentProject = null;
+        let state = null;
+        const API_BASE = window.location.origin;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function esc(str) {
-    return String(str || '');
-}
-
-function el(tag, attrs, ...children) {
-    const node = document.createElement(tag);
-    if (attrs) {
-        for (const [k, v] of Object.entries(attrs)) {
-            if (k === 'className') node.className = v;
-            else if (k === 'dataset') Object.assign(node.dataset, v);
-            else if (k.startsWith('on')) node.addEventListener(k.slice(2).toLowerCase(), v);
-            else node.setAttribute(k, v);
+        // ── Helpers ──────────────────────────────────────────────────────────────────
+        function esc(str) {
+            return String(str || '');
         }
-    }
-    for (const child of children) {
-        if (typeof child === 'string') node.appendChild(document.createTextNode(child));
-        else if (child) node.appendChild(child);
-    }
-    return node;
-}
 
-// ── Data layer — live API fetch ──────────────────────────────────────────────
-async function loadDashboardState() {
-    try {
-        const res = await fetch(API_BASE + '/api/state');
-        if (!res.ok) throw new Error('API returned ' + res.status);
-        const raw = await res.json();
-        return transformApiState(raw);
-    } catch (err) {
-        console.warn('[dashboard] fetch failed, showing empty state:', err.message);
-        return emptyState();
-    }
-}
-
-function emptyState() {
-    return {
-        lastUpdated: new Date(),
-        projects: [],
-        loadedFiles: {},
-        sessionLog: {},
-        violations: {},
-        history: {},
-    };
-}
-
-function transformApiState(raw) {
-    const projects = (raw.projects || []).map(p => {
-        const comp = (raw.compliance || {})[p.project] || {};
-        const rate = comp.latestRate || 0;
-        const violationList = comp.violations || [];
-        return {
-            id: p.project,
-            name: p.project,
-            path: p.projectPath || p.project,
-            contexts: typeof p.contexts === 'string' ? p.contexts.split(',').map(c => c.trim()).filter(Boolean) : [],
-            health: rate >= 90 ? 'healthy' : rate >= 70 ? 'warning' : rate > 0 ? 'error' : 'healthy',
-            complianceRate: rate,
-            violations: violationList.length,
-        };
-    });
-
-    const loadedFiles = {};
-    const sessionLog = {};
-    const violations = {};
-    const history = {};
-
-    for (const p of projects) {
-        loadedFiles[p.id] = buildAvailableFiles(p.contexts);
-
-        const projectEvents = (raw.events || []).filter(e => e.project === p.id);
-        sessionLog[p.id] = projectEvents.map(e => ({
-            time: e.time || '',
-            type: e.type || 'info',
-            message: e.message || '',
-        }));
-
-        const comp = (raw.compliance || {})[p.id] || {};
-        violations[p.id] = (comp.violations || []).map(v => ({
-            title: v.title || '',
-            rule: v.rule || '',
-            severity: v.severity || 'medium',
-            commit: '',
-            file: v.file || '',
-            body: v.body || '',
-            timestamp: v.timestamp || '',
-        }));
-
-        history[p.id] = comp.history || [];
-    }
-
-    return { lastUpdated: new Date(), projects, loadedFiles, sessionLog, violations, history };
-}
-
-function buildAvailableFiles(contexts) {
-    const files = [
-        { name: 'global.instructions.md', type: 'instruction', readAt: null, status: 'available' },
-    ];
-    const contextMap = {
-        nextjs: 'nextjs.instructions.md',
-        php: 'php.instructions.md',
-        sanity: 'sanity.instructions.md',
-    };
-    for (const ctx of contexts) {
-        if (contextMap[ctx]) {
-            files.push({ name: contextMap[ctx], type: 'instruction', readAt: null, status: 'available' });
+        function el(tag, attrs, ...children) {
+            const node = document.createElement(tag);
+            if (attrs) {
+                for (const [k, v] of Object.entries(attrs)) {
+                    if (k === 'className') node.className = v;
+                    else if (k === 'dataset') Object.assign(node.dataset, v);
+                    else if (k.startsWith('on')) node.addEventListener(k.slice(2).toLowerCase(), v);
+                    else node.setAttribute(k, v);
+                }
+            }
+            for (const child of children) {
+                if (typeof child === 'string') node.appendChild(document.createTextNode(child));
+                else if (child) node.appendChild(child);
+            }
+            return node;
         }
-    }
-    const rules = ['env-security.md', 'migration-safety.md', 'test-conventions.md'];
-    for (const r of rules) {
-        files.push({ name: 'rules/' + r, type: 'rule', readAt: null, status: 'available' });
-    }
-    return files;
-}
 
-// ── Render functions (safe DOM APIs — no innerHTML) ───────────────────────────
-
-function renderProjectTabs(projects, activeId) {
-    const bar = document.getElementById('project-bar');
-    bar.textContent = '';
-
-    if (!projects.length) {
-        bar.appendChild(el('span', { className: 'text-dimmer', style: 'padding:0.8rem;font-size:1.1rem;' },
-            'No projects yet — run a task to populate'));
-        return;
-    }
-
-    for (const p of projects) {
-        const dot = el('span', { className: 'project-tab-dot ' + esc(p.health) });
-        const btn = el('button', {
-            className: 'project-tab' + (p.id === activeId ? ' active' : ''),
-            dataset: { project: p.id },
-            onClick: () => { currentProject = p.id; renderAll(); },
-        }, dot, ' ' + esc(p.name));
-        bar.appendChild(btn);
-    }
-}
-
-function renderStats(project) {
-    const rate = project.complianceRate || 0;
-    document.getElementById('stat-compliance').textContent = rate + '%';
-    document.getElementById('stat-rules').textContent =
-        state.loadedFiles[project.id]?.filter(f => f.type === 'rule').length || '—';
-    document.getElementById('stat-contexts').textContent =
-        'active contexts: ' + (project.contexts?.length || 0);
-    document.getElementById('stat-violations').textContent = project.violations || 0;
-    document.getElementById('stat-sessions').textContent =
-        (state.history[project.id]?.length || 0).toString();
-    document.getElementById('active-project-path').textContent = project.path;
-
-    const el = document.getElementById('stat-compliance');
-    el.className = 'stat-value ' + (rate >= 90 ? 'green' : rate >= 80 ? 'accent' : rate >= 70 ? 'yellow' : 'red');
-}
-
-function renderContextTags(project) {
-    const container = document.getElementById('context-tags');
-    container.textContent = '';
-    const allContexts = ['general', 'nextjs', 'node', 'typescript', 'sanity', 'prisma', 'docker', 'python', 'php', 'react-native'];
-
-    for (const c of project.contexts) {
-        container.appendChild(el('span', { className: 'context-tag' }, esc(c)));
-    }
-    for (const c of allContexts.filter(c => !project.contexts.includes(c))) {
-        container.appendChild(el('span', { className: 'context-tag inactive' }, esc(c)));
-    }
-}
-
-function renderLoadedFiles(projectId) {
-    const files = state.loadedFiles[projectId] || [];
-    const container = document.getElementById('loaded-files');
-    container.textContent = '';
-
-    if (!files.length) {
-        container.appendChild(el('div', { className: 'empty-state' },
-            el('div', { className: 'empty-state-title' }, 'No files tracked yet'),
-            'Run a task to see what gets loaded'));
-        return;
-    }
-
-    for (const f of files) {
-        container.appendChild(el('div', { className: 'file-row' },
-            el('span', { className: 'file-name' }, esc(f.name)),
-            el('span', { className: 'file-read-time' }, f.readAt ? 'read ' + esc(f.readAt) : ''),
-            el('span', { className: 'status-badge ' + esc(f.status) }, esc(f.status))));
-    }
-}
-
-function renderSidebar(projectId) {
-    const files = state.loadedFiles[projectId] || [];
-    const rules  = files.filter(f => f.type === 'rule');
-    const skills = files.filter(f => f.type === 'skill');
-    const agents = [
-        { name: 'code-reviewer', status: 'idle' },
-        { name: 'researcher',    status: 'idle' },
-        { name: 'security-auditor', status: 'idle' },
-    ];
-
-    document.getElementById('rules-count').textContent = rules.length;
-    document.getElementById('skills-count').textContent = skills.length;
-    document.getElementById('agents-count').textContent = agents.length;
-
-    const rulesList = document.getElementById('rules-list');
-    rulesList.textContent = '';
-    if (rules.length) {
-        for (const r of rules) {
-            rulesList.appendChild(el('div', { className: 'sidebar-item' },
-                el('span', { className: 'sidebar-item-icon', style: 'color:var(--yellow);' }, '\u2295'),
-                el('span', { className: 'sidebar-item-name active' }, esc(r.name.replace('rules/', ''))),
-                el('span', { className: 'status-badge ' + esc(r.status) }, esc(r.status))));
+        // ── Data layer — live API fetch ──────────────────────────────────────────────
+        async function loadDashboardState() {
+            const res = await fetch(API_BASE + '/api/state');
+            if (!res.ok) throw new Error('API returned ' + res.status);
+            const raw = await res.json();
+            return transformApiState(raw);
         }
-    } else {
-        rulesList.appendChild(el('div', { className: 'sidebar-item' },
-            el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No rules loaded')));
-    }
 
-    const skillsList = document.getElementById('skills-list');
-    skillsList.textContent = '';
-    if (skills.length) {
-        for (const s of skills) {
-            skillsList.appendChild(el('div', { className: 'sidebar-item' },
-                el('span', { className: 'sidebar-item-icon', style: 'color:var(--accent);' }, '\u26A1'),
-                el('span', { className: 'sidebar-item-name active' }, esc(s.name.replace('skills/', '').replace('/SKILL.md', ''))),
-                el('span', { className: 'status-badge ' + esc(s.status) }, esc(s.status))));
+        function emptyState() {
+            return {
+                lastUpdated: new Date(),
+                projects: [],
+                loadedFiles: {},
+                sessionLog: {},
+                violations: {},
+                history: {},
+            };
         }
-    } else {
-        skillsList.appendChild(el('div', { className: 'sidebar-item' },
-            el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No skills invoked')));
-    }
 
-    const agentsList = document.getElementById('agents-list');
-    agentsList.textContent = '';
-    for (const a of agents) {
-        agentsList.appendChild(el('div', { className: 'sidebar-item' },
-            el('span', { className: 'sidebar-item-icon', style: 'color:var(--blue);' }, '\u25C8'),
-            el('span', { className: 'sidebar-item-name' }, esc(a.name)),
-            el('span', { className: 'status-badge idle' }, 'idle')));
-    }
-}
+        function transformApiState(raw) {
+            const projects = (raw.projects || []).map(p => {
+                const comp = (raw.compliance || {})[p.project] || {};
+                const rate = comp.latestRate || 0;
+                const violationList = comp.violations || [];
+                return {
+                    id: p.project,
+                    name: p.project,
+                    path: p.projectPath || p.project,
+                    contexts: typeof p.contexts === 'string' ? p.contexts.split(',').map(c => c.trim()).filter(Boolean) : [],
+                    health: rate >= 90 ? 'healthy' : rate >= 70 ? 'warning' : rate > 0 ? 'error' : 'healthy',
+                    complianceRate: rate,
+                    violations: violationList.length,
+                };
+            });
 
-function renderLog(projectId) {
-    const entries = state.sessionLog[projectId] || [];
-    const container = document.getElementById('log-stream');
-    const sessionId = projectId + '-' + new Date().toISOString().split('T')[0];
-    document.getElementById('log-session-id').textContent = sessionId;
-    container.textContent = '';
+            const loadedFiles = {};
+            const sessionLog = {};
+            const violations = {};
+            const history = {};
 
-    if (!entries.length) {
-        container.appendChild(el('div', { className: 'empty-state' },
-            el('div', { className: 'empty-state-title' }, 'No activity yet'),
-            'Start a task to see the session log'));
-        return;
-    }
+            for (const p of projects) {
+                loadedFiles[p.id] = buildAvailableFiles(p.contexts);
 
-    for (const e of entries) {
-        container.appendChild(el('div', { className: 'log-entry ' + esc(e.type) },
-            el('span', { className: 'log-time' }, esc(e.time)),
-            el('span', { className: 'log-type ' + esc(e.type) }, esc(e.type)),
-            el('span', { className: 'log-message' }, esc(e.message))));
-    }
-    container.scrollTop = container.scrollHeight;
-}
+                const projectEvents = (raw.events || []).filter(e => e.project === p.id);
+                sessionLog[p.id] = projectEvents.map(e => ({
+                    time: e.time || '',
+                    type: e.type || 'info',
+                    message: e.message || '',
+                }));
 
-function renderHistory(projectId) {
-    const history = state.history[projectId] || [];
-    const container = document.getElementById('compliance-chart');
-    container.textContent = '';
+                const comp = (raw.compliance || {})[p.id] || {};
+                violations[p.id] = (comp.violations || []).map(v => ({
+                    title: v.title || '',
+                    rule: v.rule || '',
+                    severity: v.severity || 'medium',
+                    commit: '',
+                    file: v.file || '',
+                    body: v.body || '',
+                    timestamp: v.timestamp || '',
+                }));
 
-    if (!history.length) {
-        container.appendChild(el('div', { className: 'empty-state', style: 'padding:2rem;text-align:center;' },
-            'No compliance history yet'));
-        return;
-    }
+                history[p.id] = comp.history || [];
+            }
 
-    for (let i = 0; i < history.length; i++) {
-        const val = history[i];
-        const height = Math.max(4, (val / 100) * 100);
-        const cls = val >= 90 ? 'high' : val >= 75 ? 'medium' : 'low';
-        const day = new Date(Date.now() - (history.length - i) * 24 * 60 * 60 * 1000);
-        const label = (day.getMonth() + 1) + '/' + day.getDate();
+            return { lastUpdated: new Date(), projects, loadedFiles, sessionLog, violations, history };
+        }
 
-        const bar = el('div', {
-            className: 'compliance-bar ' + cls,
-            style: 'height:' + height + '%',
-        });
-        bar.dataset.tip = label + ': ' + val + '%';
-        container.appendChild(el('div', { className: 'compliance-bar-wrap' }, bar));
-    }
-}
+        function buildAvailableFiles(contexts) {
+            const files = [
+                { name: 'global.instructions.md', type: 'instruction', readAt: null, status: 'available' },
+            ];
+            const contextMap = {
+                nextjs: 'nextjs.instructions.md',
+                php: 'php.instructions.md',
+                sanity: 'sanity.instructions.md',
+            };
+            for (const ctx of contexts) {
+                if (contextMap[ctx]) {
+                    files.push({ name: contextMap[ctx], type: 'instruction', readAt: null, status: 'available' });
+                }
+            }
+            return files;
+        }
 
-function renderViolations(projectId) {
-    const violations = state.violations[projectId] || [];
-    const container = document.getElementById('violations-list');
-    document.getElementById('violation-count-header').textContent =
-        violations.length + ' violation' + (violations.length !== 1 ? 's' : '') + ' this session';
-    container.textContent = '';
+        // ── Render functions (safe DOM APIs — no innerHTML) ───────────────────────────
 
-    if (!violations.length) {
-        container.appendChild(el('div', { className: 'empty-state' },
-            el('div', { className: 'empty-state-title' }, 'No violations this session'),
-            'Compliance audit found nothing to flag.'));
-        return;
-    }
+        function renderProjectTabs(projects, activeId) {
+            const bar = document.getElementById('project-bar');
+            bar.textContent = '';
 
-    for (const v of violations) {
-        container.appendChild(el('div', { className: 'violation-card', style: 'border-left:none;border-right:none;border-top:none;' },
-            el('div', { className: 'violation-header' },
-                el('div', { className: 'violation-title' }, esc(v.title)),
-                el('span', { className: 'violation-severity ' + esc(v.severity) }, esc(v.severity))),
-            el('div', { className: 'violation-body' }, esc(v.body)),
-            el('div', { className: 'violation-meta' },
-                el('span', null, '\u2295 ' + esc(v.rule)),
-                el('span', null, '\u2318 ' + esc(v.file)),
-                el('span', null, '\u25C8 ' + esc(v.commit)),
-                el('span', null, '\u23F1 ' + esc(v.timestamp)))));
-    }
-}
+            if (!projects.length) {
+                bar.appendChild(el('span', { className: 'text-dimmer', style: 'padding:0.8rem;font-size:1.1rem;' },
+                    'No projects yet — run a task to populate'));
+                return;
+            }
 
-// ── Main render ───────────────────────────────────────────────────────────────
-function renderAll() {
-    if (!state || !state.projects.length) {
-        renderEmptyDashboard();
-        return;
-    }
+            for (const p of projects) {
+                const dot = el('span', { className: 'project-tab-dot ' + esc(p.health) });
+                const btn = el('button', {
+                    className: 'project-tab' + (p.id === activeId ? ' active' : ''),
+                    dataset: { project: p.id },
+                    onClick: () => { currentProject = p.id; renderAll(); },
+                }, dot, ' ' + esc(p.name));
+                bar.appendChild(btn);
+            }
+        }
 
-    const project = state.projects.find(p => p.id === currentProject) || state.projects[0];
-    if (!project) return;
-    currentProject = project.id;
+        function renderStats(project) {
+            const rate = project.complianceRate || 0;
+            document.getElementById('stat-compliance').textContent = rate + '%';
+            document.getElementById('stat-rules').textContent =
+                state.loadedFiles[project.id]?.filter(f => f.type === 'rule')?.length ?? '—';
+            document.getElementById('stat-contexts').textContent =
+                'active contexts: ' + (project.contexts?.length || 0);
+            document.getElementById('stat-violations').textContent = project.violations || 0;
+            document.getElementById('stat-sessions').textContent =
+                (state.history[project.id]?.length || 0).toString();
+            document.getElementById('active-project-path').textContent = project.path;
 
-    renderProjectTabs(state.projects, currentProject);
-    renderStats(project);
-    renderContextTags(project);
-    renderLoadedFiles(currentProject);
-    renderSidebar(currentProject);
-    renderLog(currentProject);
-    renderHistory(currentProject);
-    renderViolations(currentProject);
+            const el = document.getElementById('stat-compliance');
+            el.className = 'stat-value ' + (rate >= 90 ? 'green' : rate >= 80 ? 'accent' : rate >= 70 ? 'yellow' : 'red');
+        }
 
-    document.getElementById('last-updated').textContent =
-        'updated ' + state.lastUpdated.toLocaleTimeString();
-}
+        function renderContextTags(project) {
+            const container = document.getElementById('context-tags');
+            container.textContent = '';
+            const allContexts = ['general', 'nextjs', 'node', 'typescript', 'sanity', 'prisma', 'docker', 'python', 'php', 'react-native'];
 
-function renderEmptyDashboard() {
-    const bar = document.getElementById('project-bar');
-    bar.textContent = '';
-    bar.appendChild(el('span', { style: 'padding:0.8rem;font-size:1.1rem;color:var(--text-dimmer);' },
-        'No projects yet — start a task or run a compliance-audit to populate'));
-    document.getElementById('stat-compliance').textContent = '—';
-    document.getElementById('stat-rules').textContent = '—';
-    document.getElementById('stat-contexts').textContent = '—';
-    document.getElementById('stat-violations').textContent = '—';
-    document.getElementById('stat-sessions').textContent = '—';
-    document.getElementById('last-updated').textContent = 'waiting for data\u2026';
-}
+            for (const c of project.contexts) {
+                container.appendChild(el('span', { className: 'context-tag' }, esc(c)));
+            }
+            for (const c of allContexts.filter(c => !project.contexts.includes(c))) {
+                container.appendChild(el('span', { className: 'context-tag inactive' }, esc(c)));
+            }
+        }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-async function init() {
-    state = await loadDashboardState();
-    if (state.projects.length) {
-        currentProject = state.projects[0].id;
-    }
-    renderAll();
+        function renderLoadedFiles(projectId) {
+            const files = state.loadedFiles[projectId] || [];
+            const container = document.getElementById('loaded-files');
+            container.textContent = '';
 
-    // Poll daemon for live updates every 5s
-    setInterval(async () => {
-        const liveDot = document.getElementById('live-dot');
-        try {
-            state = await loadDashboardState();
-            if (!currentProject && state.projects.length) {
+            if (!files.length) {
+                container.appendChild(el('div', { className: 'empty-state' },
+                    el('div', { className: 'empty-state-title' }, 'No files tracked yet'),
+                    'Run a task to see what gets loaded'));
+                return;
+            }
+
+            for (const f of files) {
+                container.appendChild(el('div', { className: 'file-row' },
+                    el('span', { className: 'file-name' }, esc(f.name)),
+                    el('span', { className: 'file-read-time' }, f.readAt ? 'read ' + esc(f.readAt) : ''),
+                    el('span', { className: 'status-badge ' + esc(f.status) }, esc(f.status))));
+            }
+        }
+
+        function renderSidebar(projectId) {
+            const files = state.loadedFiles[projectId] || [];
+            const rules = files.filter(f => f.type === 'rule');
+            const skills = files.filter(f => f.type === 'skill');
+            const agents = [
+                { name: 'code-reviewer', status: 'idle' },
+                { name: 'researcher', status: 'idle' },
+                { name: 'security-auditor', status: 'idle' },
+            ];
+
+            document.getElementById('rules-count').textContent = rules.length;
+            document.getElementById('skills-count').textContent = skills.length;
+            document.getElementById('agents-count').textContent = agents.length;
+
+            const rulesList = document.getElementById('rules-list');
+            rulesList.textContent = '';
+            if (rules.length) {
+                for (const r of rules) {
+                    rulesList.appendChild(el('div', { className: 'sidebar-item' },
+                        el('span', { className: 'sidebar-item-icon', style: 'color:var(--yellow);' }, '\u2295'),
+                        el('span', { className: 'sidebar-item-name active' }, esc(r.name.replace('rules/', ''))),
+                        el('span', { className: 'status-badge ' + esc(r.status) }, esc(r.status))));
+                }
+            } else {
+                rulesList.appendChild(el('div', { className: 'sidebar-item' },
+                    el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No rules loaded')));
+            }
+
+            const skillsList = document.getElementById('skills-list');
+            skillsList.textContent = '';
+            if (skills.length) {
+                for (const s of skills) {
+                    skillsList.appendChild(el('div', { className: 'sidebar-item' },
+                        el('span', { className: 'sidebar-item-icon', style: 'color:var(--accent);' }, '\u26A1'),
+                        el('span', { className: 'sidebar-item-name active' }, esc(s.name.replace('skills/', '').replace('/SKILL.md', ''))),
+                        el('span', { className: 'status-badge ' + esc(s.status) }, esc(s.status))));
+                }
+            } else {
+                skillsList.appendChild(el('div', { className: 'sidebar-item' },
+                    el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No skills invoked')));
+            }
+
+            const agentsList = document.getElementById('agents-list');
+            agentsList.textContent = '';
+            for (const a of agents) {
+                agentsList.appendChild(el('div', { className: 'sidebar-item' },
+                    el('span', { className: 'sidebar-item-icon', style: 'color:var(--blue);' }, '\u25C8'),
+                    el('span', { className: 'sidebar-item-name' }, esc(a.name)),
+                    el('span', { className: 'status-badge idle' }, 'idle')));
+            }
+        }
+
+        function renderLog(projectId) {
+            const entries = state.sessionLog[projectId] || [];
+            const container = document.getElementById('log-stream');
+            const sessionId = projectId + '-' + new Date().toISOString().split('T')[0];
+            document.getElementById('log-session-id').textContent = sessionId;
+            container.textContent = '';
+
+            if (!entries.length) {
+                container.appendChild(el('div', { className: 'empty-state' },
+                    el('div', { className: 'empty-state-title' }, 'No activity yet'),
+                    'Start a task to see the session log'));
+                return;
+            }
+
+            for (const e of entries) {
+                container.appendChild(el('div', { className: 'log-entry ' + esc(e.type) },
+                    el('span', { className: 'log-time' }, esc(e.time)),
+                    el('span', { className: 'log-type ' + esc(e.type) }, esc(e.type)),
+                    el('span', { className: 'log-message' }, esc(e.message))));
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderHistory(projectId) {
+            const history = state.history[projectId] || [];
+            const container = document.getElementById('compliance-chart');
+            container.textContent = '';
+
+            if (!history.length) {
+                container.appendChild(el('div', { className: 'empty-state', style: 'padding:2rem;text-align:center;' },
+                    'No compliance history yet'));
+                return;
+            }
+
+            for (let i = 0; i < history.length; i++) {
+                const val = history[i];
+                const height = Math.max(4, (val / 100) * 100);
+                const cls = val >= 90 ? 'high' : val >= 75 ? 'medium' : 'low';
+                const day = new Date(Date.now() - (history.length - i) * 24 * 60 * 60 * 1000);
+                const label = (day.getMonth() + 1) + '/' + day.getDate();
+
+                const bar = el('div', {
+                    className: 'compliance-bar ' + cls,
+                    style: 'height:' + height + '%',
+                });
+                bar.dataset.tip = label + ': ' + val + '%';
+                container.appendChild(el('div', { className: 'compliance-bar-wrap' }, bar));
+            }
+        }
+
+        function renderViolations(projectId) {
+            const violations = state.violations[projectId] || [];
+            const container = document.getElementById('violations-list');
+            document.getElementById('violation-count-header').textContent =
+                violations.length + ' violation' + (violations.length !== 1 ? 's' : '') + ' this session';
+            container.textContent = '';
+
+            if (!violations.length) {
+                container.appendChild(el('div', { className: 'empty-state' },
+                    el('div', { className: 'empty-state-title' }, 'No violations this session'),
+                    'Compliance audit found nothing to flag.'));
+                return;
+            }
+
+            for (const v of violations) {
+                container.appendChild(el('div', { className: 'violation-card', style: 'border-left:none;border-right:none;border-top:none;' },
+                    el('div', { className: 'violation-header' },
+                        el('div', { className: 'violation-title' }, esc(v.title)),
+                        el('span', { className: 'violation-severity ' + esc(v.severity) }, esc(v.severity))),
+                    el('div', { className: 'violation-body' }, esc(v.body)),
+                    el('div', { className: 'violation-meta' },
+                        el('span', null, '\u2295 ' + esc(v.rule)),
+                        el('span', null, '\u2318 ' + esc(v.file)),
+                        el('span', null, '\u25C8 ' + esc(v.commit)),
+                        el('span', null, '\u23F1 ' + esc(v.timestamp)))));
+            }
+        }
+
+        // ── Main render ───────────────────────────────────────────────────────────────
+        function renderAll() {
+            if (!state || !state.projects.length) {
+                renderEmptyDashboard();
+                return;
+            }
+
+            const project = state.projects.find(p => p.id === currentProject) || state.projects[0];
+            if (!project) return;
+            currentProject = project.id;
+
+            renderProjectTabs(state.projects, currentProject);
+            renderStats(project);
+            renderContextTags(project);
+            renderLoadedFiles(currentProject);
+            renderSidebar(currentProject);
+            renderLog(currentProject);
+            renderHistory(currentProject);
+            renderViolations(currentProject);
+
+            document.getElementById('last-updated').textContent =
+                'updated ' + state.lastUpdated.toLocaleTimeString();
+        }
+
+        function renderEmptyDashboard() {
+            const bar = document.getElementById('project-bar');
+            bar.textContent = '';
+            bar.appendChild(el('span', { style: 'padding:0.8rem;font-size:1.1rem;color:var(--text-dimmer);' },
+                'No projects yet — start a task or run a compliance-audit to populate'));
+            document.getElementById('stat-compliance').textContent = '—';
+            document.getElementById('stat-rules').textContent = '—';
+            document.getElementById('stat-contexts').textContent = '—';
+            document.getElementById('stat-violations').textContent = '—';
+            document.getElementById('stat-sessions').textContent = '—';
+            document.getElementById('last-updated').textContent = 'waiting for data\u2026';
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────────────
+        async function init() {
+            try {
+                state = await loadDashboardState();
+            } catch (err) {
+                console.warn('[dashboard] initial fetch failed, showing empty state:', err.message);
+                state = emptyState();
+            }
+            if (state.projects.length) {
                 currentProject = state.projects[0].id;
             }
             renderAll();
-            liveDot.classList.remove('stale', 'error');
-        } catch {
-            liveDot.classList.add('stale');
-        }
-    }, 5000);
-}
 
-init();
-</script>
+            // Poll daemon for live updates every 5s
+            setInterval(async () => {
+                const liveDot = document.getElementById('live-dot');
+                try {
+                    state = await loadDashboardState();
+                    if (!currentProject && state.projects.length) {
+                        currentProject = state.projects[0].id;
+                    }
+                    renderAll();
+                    liveDot.classList.remove('stale', 'error');
+                } catch {
+                    liveDot.classList.add('stale');
+                }
+            }, 5000);
+        }
+
+        init();
+    </script>
 
 </body>
+
 </html>
