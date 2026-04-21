@@ -591,6 +591,48 @@ function broadcast(data) {
     wsClients.forEach(s => wsFrame(s, msg));
 }
 
+// ── File inventory — scans repo for all trackable files ───────────────────────
+let fileInventory = null;
+
+function scanFileInventory() {
+    const inventory = [];
+
+    const scan = (dir, type) => {
+        try {
+            const entries = fs.readdirSync(path.join(DOTFILES, dir));
+            for (const e of entries) {
+                if (e === 'README.md' || e === '_local' || e === '_vendor') continue;
+                const full = path.join(DOTFILES, dir, e);
+                if (type === 'skill') {
+                    const skill = path.join(full, 'SKILL.md');
+                    try { fs.statSync(skill); inventory.push({ name: dir + '/' + e, type }); } catch { }
+                } else {
+                    if (e.endsWith('.md')) inventory.push({ name: dir + '/' + e, type });
+                }
+            }
+        } catch { }
+    };
+
+    // Always-loaded
+    inventory.push({ name: 'global.instructions.md', type: 'instruction' });
+
+    scan('instructions', 'instruction');
+    scan('rules', 'rule');
+    scan('skills', 'skill');
+
+    // Agents
+    try {
+        const entries = fs.readdirSync(path.join(DOTFILES, 'agents'));
+        for (const e of entries) {
+            if (e === 'README.md') continue;
+            if (e.endsWith('.md')) inventory.push({ name: 'agents/' + e.replace('.md', ''), type: 'agent' });
+        }
+    } catch { }
+
+    fileInventory = inventory;
+    log('File inventory:', inventory.length, 'trackable files');
+}
+
 // ── HTTP server ───────────────────────────────────────────────────────────────
 function startHttpServer() {
     const DASHBOARD_HTML = path.join(__dirname, '..', 'dashboard', 'index.html');
@@ -653,6 +695,7 @@ function startHttpServer() {
                 projects: projectsArray,
                 events: allEvts.slice(-100),
                 compliance: complianceObj,
+                inventory: fileInventory || [],
                 wsPort:   WS_PORT,
                 uptime:   process.uptime(),
                 db:       !!db,
@@ -761,6 +804,7 @@ log('ctrl+shft compliance daemon starting');
 log('Dotfiles:', DOTFILES);
 
 initDb();
+scanFileInventory();
 startPipeListener();
 startJsonlWatcher();
 startHttpServer();

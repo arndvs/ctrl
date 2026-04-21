@@ -803,7 +803,7 @@
 
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
-                    Active rules
+                    Rules
                     <span class="sidebar-count" id="rules-count">—</span>
                 </div>
                 <div id="rules-list">
@@ -813,7 +813,7 @@
 
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
-                    Active skills
+                    Skills
                     <span class="sidebar-count" id="skills-count">—</span>
                 </div>
                 <div id="skills-list">
@@ -980,6 +980,8 @@
         }
 
         function transformApiState(raw) {
+            const inventory = raw.inventory || [];
+
             const projects = (raw.projects || []).map(p => {
                 const comp = (raw.compliance || {})[p.project] || {};
                 const rate = comp.latestRate || 0;
@@ -1001,11 +1003,19 @@
             const history = {};
 
             for (const p of projects) {
-                loadedFiles[p.id] = buildAvailableFiles(p.contexts);
+                const sessionLoaded = (p.loadedFiles || []).map(f => f.file_name || f.name);
+                loadedFiles[p.id] = inventory.map(inv => ({
+                    name: inv.name,
+                    type: inv.type,
+                    readAt: sessionLoaded.includes(inv.name)
+                        ? ((p.loadedFiles || []).find(f => (f.file_name || f.name) === inv.name)?.read_at || 'yes')
+                        : null,
+                    status: sessionLoaded.includes(inv.name) ? 'loaded' : 'available',
+                }));
 
                 const projectEvents = (raw.events || []).filter(e => e.project === p.id);
                 sessionLog[p.id] = projectEvents.map(e => ({
-                    time: e.time || '',
+                    time: e.time || e.time_display || '',
                     type: e.type || 'info',
                     message: e.message || '',
                 }));
@@ -1024,24 +1034,7 @@
                 history[p.id] = comp.history || [];
             }
 
-            return { lastUpdated: new Date(), projects, loadedFiles, sessionLog, violations, history };
-        }
-
-        function buildAvailableFiles(contexts) {
-            const files = [
-                { name: 'global.instructions.md', type: 'rule', readAt: null, status: 'available' },
-            ];
-            const contextRules = {
-                nextjs: 'nextjs.instructions.md',
-                php: 'php.instructions.md',
-                sanity: 'sanity.instructions.md',
-            };
-            for (const ctx of contexts) {
-                if (contextRules[ctx]) {
-                    files.push({ name: contextRules[ctx], type: 'rule', readAt: null, status: 'available' });
-                }
-            }
-            return files;
+            return { lastUpdated: new Date(), projects, loadedFiles, sessionLog, violations, history, inventory };
         }
 
         // ── Render functions (safe DOM APIs — no innerHTML) ───────────────────────────
@@ -1071,7 +1064,7 @@
             const rate = project.complianceRate || 0;
             document.getElementById('stat-compliance').textContent = rate + '%';
             document.getElementById('stat-rules').textContent =
-                state.loadedFiles[project.id]?.filter(f => f.type === 'rule')?.length ?? '—';
+                state.loadedFiles[project.id]?.filter(f => f.status === 'loaded' && (f.type === 'rule' || f.type === 'instruction'))?.length ?? '—';
             document.getElementById('stat-contexts').textContent =
                 'active contexts: ' + (project.contexts?.length || 0);
             document.getElementById('stat-violations').textContent = project.violations || 0;
@@ -1086,7 +1079,7 @@
         function renderContextTags(project) {
             const container = document.getElementById('context-tags');
             container.textContent = '';
-            const allContexts = ['general', 'nextjs', 'node', 'typescript', 'sanity', 'prisma', 'docker', 'python', 'php', 'react-native'];
+            const allContexts = ['general', 'nextjs', 'react', 'react-native', 'node', 'typescript', 'sanity', 'prisma', 'docker', 'python', 'php', 'laravel'];
 
             for (const c of project.contexts) {
                 container.appendChild(el('span', { className: 'context-tag' }, str(c)));
@@ -1118,52 +1111,44 @@
 
         function renderSidebar(projectId) {
             const files = state.loadedFiles[projectId] || [];
-            const rules = files.filter(f => f.type === 'rule');
-            const skills = files.filter(f => f.type === 'skill');
-            const agents = [
-                { name: 'code-reviewer', status: 'idle' },
-                { name: 'researcher', status: 'idle' },
-                { name: 'security-auditor', status: 'idle' },
-            ];
+            const allRules = files.filter(f => f.type === 'rule' || f.type === 'instruction');
+            const loadedRules = allRules.filter(f => f.status === 'loaded');
+            const allSkills = files.filter(f => f.type === 'skill');
+            const loadedSkills = allSkills.filter(f => f.status === 'loaded');
+            const allAgents = files.filter(f => f.type === 'agent');
 
-            document.getElementById('rules-count').textContent = rules.length;
-            document.getElementById('skills-count').textContent = skills.length;
-            document.getElementById('agents-count').textContent = agents.length;
+            document.getElementById('rules-count').textContent = loadedRules.length + ' / ' + allRules.length;
+            document.getElementById('skills-count').textContent = loadedSkills.length + ' / ' + allSkills.length;
+            document.getElementById('agents-count').textContent = allAgents.length;
 
             const rulesList = document.getElementById('rules-list');
             rulesList.textContent = '';
-            if (rules.length) {
-                for (const r of rules) {
-                    rulesList.appendChild(el('div', { className: 'sidebar-item' },
-                        el('span', { className: 'sidebar-item-icon', style: 'color:var(--yellow);' }, '\u2295'),
-                        el('span', { className: 'sidebar-item-name active' }, str(r.name.replace('rules/', ''))),
-                        el('span', { className: 'status-badge ' + str(r.status) }, str(r.status))));
-                }
-            } else {
+            for (const r of allRules) {
+                const isLoaded = r.status === 'loaded';
                 rulesList.appendChild(el('div', { className: 'sidebar-item' },
-                    el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No rules loaded')));
+                    el('span', { className: 'sidebar-item-icon', style: isLoaded ? 'color:var(--yellow);' : 'color:var(--text-dimmer);' }, isLoaded ? '\u2295' : '\u2299'),
+                    el('span', { className: 'sidebar-item-name' + (isLoaded ? ' active' : ''), style: isLoaded ? '' : 'color:var(--text-dimmer)' },
+                        str(r.name.replace('instructions/', '').replace('rules/', ''))),
+                    el('span', { className: 'status-badge ' + str(r.status) }, str(r.status))));
             }
 
             const skillsList = document.getElementById('skills-list');
             skillsList.textContent = '';
-            if (skills.length) {
-                for (const s of skills) {
-                    skillsList.appendChild(el('div', { className: 'sidebar-item' },
-                        el('span', { className: 'sidebar-item-icon', style: 'color:var(--accent);' }, '\u26A1'),
-                        el('span', { className: 'sidebar-item-name active' }, str(s.name.replace('skills/', '').replace('/SKILL.md', ''))),
-                        el('span', { className: 'status-badge ' + str(s.status) }, str(s.status))));
-                }
-            } else {
+            for (const s of allSkills) {
+                const isLoaded = s.status === 'loaded';
                 skillsList.appendChild(el('div', { className: 'sidebar-item' },
-                    el('span', { className: 'sidebar-item-name', style: 'color:var(--text-dimmer)' }, 'No skills invoked')));
+                    el('span', { className: 'sidebar-item-icon', style: isLoaded ? 'color:var(--accent);' : 'color:var(--text-dimmer);' }, isLoaded ? '\u26A1' : '\u2299'),
+                    el('span', { className: 'sidebar-item-name' + (isLoaded ? ' active' : ''), style: isLoaded ? '' : 'color:var(--text-dimmer)' },
+                        str(s.name.replace('skills/', ''))),
+                    el('span', { className: 'status-badge ' + str(s.status) }, str(s.status))));
             }
 
             const agentsList = document.getElementById('agents-list');
             agentsList.textContent = '';
-            for (const a of agents) {
+            for (const a of allAgents) {
                 agentsList.appendChild(el('div', { className: 'sidebar-item' },
                     el('span', { className: 'sidebar-item-icon', style: 'color:var(--blue);' }, '\u25C8'),
-                    el('span', { className: 'sidebar-item-name' }, str(a.name)),
+                    el('span', { className: 'sidebar-item-name' }, str(a.name.replace('agents/', ''))),
                     el('span', { className: 'status-badge idle' }, 'idle')));
             }
         }
@@ -1284,6 +1269,48 @@
         }
 
         // ── Init ──────────────────────────────────────────────────────────────────────
+        let ws = null;
+
+        function connectWebSocket(wsPort) {
+            if (ws) return;
+            try {
+                ws = new WebSocket('ws://localhost:' + wsPort);
+            } catch { return; }
+
+            ws.onopen = () => {
+                const liveDot = document.getElementById('live-dot');
+                const liveStatus = document.getElementById('live-status');
+                liveDot.classList.remove('stale', 'error');
+                liveStatus.textContent = 'live (ws)';
+            };
+
+            ws.onmessage = (evt) => {
+                try {
+                    const msg = JSON.parse(evt.data);
+                    if (msg.type === 'event' && state) {
+                        // Incremental update — add event to existing state
+                        const pid = msg.projectId;
+                        if (state.sessionLog[pid]) {
+                            const e = msg.event;
+                            state.sessionLog[pid].push({
+                                time: e.time_display || e.time || '',
+                                type: e.type || 'info',
+                                message: e.message || '',
+                            });
+                        }
+                        state.lastUpdated = new Date();
+                        renderAll();
+                    } else if (msg.type === 'heartbeat') {
+                        const liveDot = document.getElementById('live-dot');
+                        liveDot.classList.remove('stale', 'error');
+                    }
+                } catch { /* ignore malformed WS messages */ }
+            };
+
+            ws.onclose = () => { ws = null; };
+            ws.onerror = () => { ws = null; };
+        }
+
         async function init() {
             try {
                 state = await loadDashboardState();
@@ -1296,7 +1323,13 @@
             }
             renderAll();
 
-            // Poll daemon for live updates (recursive setTimeout avoids overlap)
+            // Try WebSocket for real-time updates
+            try {
+                const raw = await (await fetch(API_BASE + '/api/state')).json();
+                if (raw.wsPort) connectWebSocket(raw.wsPort);
+            } catch { /* WebSocket optional */ }
+
+            // HTTP poll as fallback (less frequent when WS is connected)
             async function poll() {
                 const liveDot = document.getElementById('live-dot');
                 const liveStatus = document.getElementById('live-status');
@@ -1307,14 +1340,14 @@
                     }
                     renderAll();
                     liveDot.classList.remove('stale', 'error');
-                    liveStatus.textContent = 'live';
+                    if (!ws) liveStatus.textContent = 'live';
                 } catch {
                     liveDot.classList.add('stale');
                     liveStatus.textContent = 'disconnected';
                 }
-                setTimeout(poll, 5000);
+                setTimeout(poll, ws ? 15000 : 5000);
             }
-            setTimeout(poll, 5000);
+            setTimeout(poll, ws ? 15000 : 5000);
         }
 
         init();
