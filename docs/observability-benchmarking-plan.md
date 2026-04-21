@@ -11,7 +11,7 @@ Observability is **partially shipped** — compliance monitoring is live, teleme
 
 - ✅ Model variant agents (`researcher-opus`, `researcher-haiku`, `code-reviewer-opus`)
 - ✅ `bin/write-dashboard-state.sh` — event emitter (pipe → HTTP → JSONL fallback)
-- ✅ `bin/dashboard-daemon.js` — zero-dependency Node.js compliance dashboard server
+- ✅ `bin/dashboard-daemon.js` — zero-dependency Node.js HUD server
 - ✅ `bin/start-dashboard.sh` — daemon lifecycle manager (start/stop/status/restart/foreground)
 - ✅ `dashboard/index.html` — real-time compliance UI (dark theme, WebSocket + adaptive polling fallback, project tabs, file inventory sidebar)
 - ✅ `skills/compliance-audit/SKILL.md` — auto-invoked rule compliance check
@@ -77,4 +77,4 @@ This plan defines the vertical slices required to close that gap.
 
 - Runtime model injection is still not available for subagents; benchmark via variant agent files.
 - Hallucination scoring needs human-in-the-loop input plus proxy signals.
-- Prefer adding telemetry views into the existing compliance dashboard (`dashboard/index.html`) rather than introducing a second app.
+- Prefer adding telemetry views into the existing HUD (`dashboard/index.html`) rather than introducing a second app.

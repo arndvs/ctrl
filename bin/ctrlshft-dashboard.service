@@ -1,5 +1,5 @@
 # ctrlshft-dashboard.service
-# systemd user service — starts the dashboard daemon on login (Linux)
+# systemd user service — starts the HUD daemon on login (Linux)
 #
 # Install:
 #   mkdir -p ~/.config/systemd/user/
@@ -16,7 +16,7 @@
 #   systemctl --user disable ctrlshft-dashboard.service
 
 [Unit]
-Description=ctrl+shft compliance dashboard daemon
+Description=ctrl+shft HUD daemon
 After=network.target
 
 [Service]

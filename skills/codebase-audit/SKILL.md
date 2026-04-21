@@ -48,7 +48,7 @@ Report in this exact format, grouped by severity:
 
 ## Dashboard Events
 
-Emit bookend events so the compliance dashboard tracks this audit:
+Emit bookend events so the HUD tracks this audit:
 ```bash
 # At start
 echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"codebase-audit: started","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl

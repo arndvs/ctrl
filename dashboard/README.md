@@ -1,4 +1,4 @@
-# Compliance Dashboard
+# HUD
 
 Real-time compliance visibility for ctrl+shft agent sessions — which rules loaded, which skills fired, and whether they were followed.
 

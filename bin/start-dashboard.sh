@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# start-dashboard.sh — Start, stop, or check the ctrl+shft dashboard daemon.
+# start-dashboard.sh — Start, stop, or check the ctrl+shft HUD daemon.
 #
 # Usage:
 #   bash ~/dotfiles/bin/start-dashboard.sh           # start in background
@@ -60,7 +60,7 @@ case "${1:-start}" in
         if _daemon_running; then
             kill "$(cat "$PID_FILE")"
             rm -f "$PID_FILE"
-            green "Dashboard daemon stopped"
+            green "HUD daemon stopped"
         else
             yellow "Dashboard daemon not running"
         fi
@@ -69,12 +69,12 @@ case "${1:-start}" in
 
     --status|status)
         if _daemon_running; then
-            green "Dashboard daemon running (PID $(cat "$PID_FILE"))"
+            green "HUD daemon running (PID $(cat "$PID_FILE"))"
             echo "  http://localhost:$HTTP_PORT"
             echo "  ws://localhost:$WS_PORT"
             echo "  Log: $LOG_FILE"
         else
-            yellow "Dashboard daemon not running"
+            yellow "HUD daemon not running"
             echo "  Start with: bash ~/dotfiles/bin/start-dashboard.sh"
         fi
         exit 0
@@ -87,7 +87,7 @@ case "${1:-start}" in
         ;;
 
     --fg|foreground)
-        green "Starting dashboard in foreground..."
+        green "Starting HUD in foreground..."
         node "$DAEMON_JS" --port "$HTTP_PORT" --ws-port "$WS_PORT" --debug
         exit 0
         ;;
@@ -98,7 +98,7 @@ esac
 
 # Already running?
 if _daemon_running; then
-    green "Dashboard already running (PID $(cat "$PID_FILE"))"
+    green "HUD already running (PID $(cat "$PID_FILE"))"
     echo "  http://localhost:$HTTP_PORT"
     _open_browser
     exit 0
@@ -109,7 +109,7 @@ rm -f "$PID_FILE"
 
 # Node.js check
 if ! command -v node &>/dev/null; then
-    red "Node.js not found — required for the dashboard daemon"
+    red "Node.js not found — required for the HUD daemon"
     red "Install from: https://nodejs.org (v18+)"
     exit 1
 fi
@@ -127,7 +127,7 @@ if ! node -e "require('better-sqlite3')" 2>/dev/null; then
 fi
 
 echo ""
-green "Starting ctrl+shft dashboard daemon..."
+green "Starting ctrl+shft HUD daemon..."
 
 nohup node "$DAEMON_JS" \
     --port "$HTTP_PORT" \

@@ -82,7 +82,7 @@ export ACTIVE_CONTEXTS="$contexts"
 echo "$contexts"
 
 # ── Dashboard context event (inline, non-blocking, never fails) ───────────────
-# Pushes a context-change event to the dashboard daemon on every cd().
+# Pushes a context-change event to the HUD daemon on every cd().
 # Inline push avoids subprocess overhead — this runs on every directory change.
 {
     _dc_dotfiles="${DOTFILES:-$HOME/dotfiles}"

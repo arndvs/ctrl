@@ -1,7 +1,7 @@
 {
   "name": "ctrlshft-dashboard",
   "version": "0.2.0",
-  "description": "ctrl+shft compliance dashboard daemon",
+  "description": "ctrl+shft HUD daemon",
   "private": true,
   "main": "bin/dashboard-daemon.js",
   "scripts": {
