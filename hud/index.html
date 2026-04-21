@@ -1340,7 +1340,7 @@
             if (h.project && state && state.projects.some(p => p.id === h.project)) {
                 currentProject = h.project;
             }
-            if (['all','info','warn','error'].includes(h.filter)) {
+            if (['all','context','read','pass','warn','fail'].includes(h.filter)) {
                 logFilter = h.filter;
                 document.querySelectorAll('.panel-tab[data-filter]').forEach(function(t) {
                     t.classList.toggle('active', t.dataset.filter === logFilter);
@@ -1516,9 +1516,10 @@
                     el('span', null, (p.complianceRate || 0) + '%'),
                     p.violations > 0 ? el('span', { style: 'color: var(--red)' }, p.violations + ' issues') : null
                 );
-                const closeBtn = el('span', {
+                const closeBtn = el('button', {
                     className: 'project-tab-close',
                     title: 'Dismiss project (reappears if new events arrive)',
+                    'aria-label': 'Dismiss ' + str(p.name),
                     onClick: (e) => {
                         e.stopPropagation();
                         dismissProject(p.id);
