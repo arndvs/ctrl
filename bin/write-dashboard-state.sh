@@ -1,113 +1,136 @@
 #!/usr/bin/env bash
-# write-dashboard-state.sh — Non-blocking dashboard event emitter.
+# write-dashboard-state.sh — Push events to the dashboard daemon.
 #
-# Usage:
-#   bash ~/dotfiles/bin/write-dashboard-state.sh context "Active contexts: general,nextjs"
-#   bash ~/dotfiles/bin/write-dashboard-state.sh info "Task started"
-#   bash ~/dotfiles/bin/write-dashboard-state.sh compliance pass 5 0 1 '[]'
+# Source this file:
+#   source ~/dotfiles/bin/write-dashboard-state.sh
 #
-# Transport priority:
-#   1) named pipe    ~/dotfiles/working/dashboard.pipe
-#   2) HTTP fallback http://localhost:${DASHBOARD_PORT:-7823}/api/event
-#   3) JSONL append  ~/dotfiles/working/events.jsonl
-
-set -euo pipefail
+# Then call:
+#   write_dashboard_event "read"    "Read skills/do-work/SKILL.md"
+#   write_dashboard_event "pass"    "global.instructions.md — Surgical Changes ✓"
+#   write_dashboard_event "fail"    "VIOLATION — rules/migration-safety.md — no rollback"
+#   write_dashboard_event "warn"    "typescript.instructions.md — implicit any detected"
+#   write_dashboard_event "info"    "Task started: implement user avatar"
+#   write_dashboard_event "context" "Active contexts: general,nextjs,typescript"
+#   update_dashboard_compliance 8 1 2    # pass fail warn
+#
+# Called by:
+#   detect-context.sh  → context events (every cd)
+#   compliance-audit   → pass/fail/warn/compliance_update events
+#   CLAUDE.md hooks    → read events
+#   ctrlshft-claude    → stdout parse events
+#
+# Transport priority (never blocks, never fails loudly):
+#   1. Named pipe  → daemon (real-time, <1ms)
+#   2. HTTP POST   → daemon (fallback, ~5ms)
+#   3. JSONL file  → file watcher (last resort, daemon picks up on next poll)
+#
+# NOTE: Does NOT source _lib.sh — this file is sourced from .bashrc/.zshrc
+# contexts and must remain fully self-contained (same rule as load-secrets.sh).
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
-WORKING_DIR="$DOTFILES/working"
-PIPE_PATH="$WORKING_DIR/dashboard.pipe"
-JSONL_PATH="$WORKING_DIR/events.jsonl"
-HTTP_PORT="${DASHBOARD_PORT:-7823}"
+_WD="$DOTFILES/working"
+_PIPE="$_WD/dashboard.pipe"
+_JSONL="$_WD/events.jsonl"
+_HTTP_PORT="${DASHBOARD_PORT:-7823}"
 
-_json_escape() {
-    local s="$1"
-    s=${s//\\/\\\\}
-    s=${s//\"/\\\"}
-    s=${s//$'\n'/ }
-    s=${s//$'\r'/ }
-    printf '%s' "$s"
-}
-
+# ── write_dashboard_event ─────────────────────────────────────────────────────
 write_dashboard_event() {
-    local type="${1:-info}"
-    local message="${2:-}"
-    local project project_path contexts timestamp time_display safe_message payload
+    local _type="$1"
+    local _msg="$2"
 
-    project=$(basename "${PWD:-.}" 2>/dev/null || echo "unknown")
-    project_path="${PWD/$HOME/~}"
-    contexts="${ACTIVE_CONTEXTS:-general}"
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
-    time_display=$(date +"%H:%M:%S" 2>/dev/null || echo "")
-    safe_message=$(_json_escape "$message")
+    # Collect context
+    local _proj
+    _proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
+    local _path="${PWD/$HOME/~}"
+    local _ctx="${ACTIVE_CONTEXTS:-general}"
 
-    payload=$(printf '{"type":"%s","project":"%s","projectPath":"%s","contexts":"%s","message":"%s","timestamp":"%s","time":"%s"}' \
-        "$type" "$project" "$project_path" "$contexts" "$safe_message" "$timestamp" "$time_display")
+    # Timestamps
+    local _ts _td
+    _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
+    _td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
 
-    if [[ -p "$PIPE_PATH" ]]; then
-        ( printf '%s\n' "$payload" > "$PIPE_PATH" ) 2>/dev/null &
+    # JSON-escape the message (backslash, double-quote, newlines)
+    local _safe_msg="$_msg"
+    _safe_msg=${_safe_msg//\\/\\\\}
+    _safe_msg=${_safe_msg//\"/\\\"}
+    _safe_msg=${_safe_msg//$'\n'/ }
+    _safe_msg=${_safe_msg//$'\r'/ }
+
+    # Build JSON
+    local _payload
+    _payload=$(printf '{"type":"%s","project":"%s","projectPath":"%s","contexts":"%s","message":"%s","timestamp":"%s","time":"%s"}' \
+        "$_type" "$_proj" "$_path" "$_ctx" "$_safe_msg" "$_ts" "$_td")
+
+    # Transport 1 — named pipe (background, non-blocking)
+    if [[ -p "$_PIPE" ]]; then
+        ( printf '%s\n' "$_payload" > "$_PIPE" ) 2>/dev/null &
         return 0
     fi
 
-    if command -v curl >/dev/null 2>&1; then
+    # Transport 2 — HTTP POST
+    if command -v curl &>/dev/null; then
         if curl -sf --max-time 0.3 \
-            "http://localhost:${HTTP_PORT}/api/event" \
+            "http://localhost:$_HTTP_PORT/api/event" \
             -X POST -H "Content-Type: application/json" \
-            -d "$payload" >/dev/null 2>&1; then
+            -d "$_payload" > /dev/null 2>&1; then
             return 0
         fi
     fi
 
-    mkdir -p "$WORKING_DIR" 2>/dev/null || true
-    printf '%s\n' "$payload" >> "$JSONL_PATH" 2>/dev/null || true
+    # Transport 3 — JSONL file (AFK/Docker fallback)
+    mkdir -p "$_WD" 2>/dev/null || true
+    printf '%s\n' "$_payload" >> "$_JSONL" 2>/dev/null || true
 }
 
+# ── update_dashboard_compliance ───────────────────────────────────────────────
+# Called by compliance-audit skill at end of each audit.
+# Usage: update_dashboard_compliance <pass_count> <fail_count> <warn_count>
+update_dashboard_compliance() {
+    local _pass="${1:-0}" _fail="${2:-0}" _warn="${3:-0}"
+    local _total=$(( _pass + _fail + _warn ))
+    local _rate=0
+    [[ "$_total" -gt 0 ]] && _rate=$(( (_pass * 100) / _total ))
+
+    local _proj
+    _proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
+    local _ts
+    _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
+
+    # Structured compliance_update event with data payload
+    local _payload
+    _payload=$(printf '{"type":"compliance_update","project":"%s","timestamp":"%s","data":{"pass":%d,"fail":%d,"warn":%d,"rate":%d},"message":"Audit: %d pass %d warn %d fail — rate: %d%%"}' \
+        "$_proj" "$_ts" "$_pass" "$_fail" "$_warn" "$_rate" \
+        "$_pass" "$_warn" "$_fail" "$_rate")
+
+    if [[ -p "$_PIPE" ]]; then
+        ( printf '%s\n' "$_payload" > "$_PIPE" ) 2>/dev/null &
+    elif command -v curl &>/dev/null; then
+        curl -sf --max-time 0.3 \
+            "http://localhost:$_HTTP_PORT/api/event" \
+            -X POST -H "Content-Type: application/json" \
+            -d "$_payload" > /dev/null 2>&1 || true
+    else
+        printf '%s\n' "$_payload" >> "$_JSONL" 2>/dev/null || true
+    fi
+}
+
+# Export for use in subshells
+export -f write_dashboard_event          2>/dev/null || true
+export -f update_dashboard_compliance    2>/dev/null || true
+
+# Backward-compatible alias (shipped name used by older callers)
 write_compliance_event() {
-    local verdict="${1:-pass}"
-    local pass_count="${2:-0}"
-    local fail_count="${3:-0}"
-    local warn_count="${4:-0}"
-    local violations_json="${5:-[]}"
-    local project project_path contexts timestamp time_display safe_violations payload
-
-    project=$(basename "${PWD:-.}" 2>/dev/null || echo "unknown")
-    project_path="${PWD/$HOME/~}"
-    contexts="${ACTIVE_CONTEXTS:-general}"
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
-    time_display=$(date +"%H:%M:%S" 2>/dev/null || echo "")
-    safe_violations=$(_json_escape "$violations_json")
-
-    payload=$(printf '{"type":"compliance-result","project":"%s","projectPath":"%s","contexts":"%s","message":"Compliance audit: %s PASS, %s FAIL, %s WARN — %s","verdict":"%s","passCount":%s,"failCount":%s,"warnCount":%s,"violations":"%s","timestamp":"%s","time":"%s"}' \
-        "$project" "$project_path" "$contexts" \
-        "$pass_count" "$fail_count" "$warn_count" "$verdict" \
-        "$verdict" "$pass_count" "$fail_count" "$warn_count" \
-        "$safe_violations" "$timestamp" "$time_display")
-
-    if [[ -p "$PIPE_PATH" ]]; then
-        ( printf '%s\n' "$payload" > "$PIPE_PATH" ) 2>/dev/null &
-        return 0
-    fi
-
-    if command -v curl >/dev/null 2>&1; then
-        if curl -sf --max-time 0.3 \
-            "http://localhost:${HTTP_PORT}/api/event" \
-            -X POST -H "Content-Type: application/json" \
-            -d "$payload" >/dev/null 2>&1; then
-            return 0
-        fi
-    fi
-
-    mkdir -p "$WORKING_DIR" 2>/dev/null || true
-    printf '%s\n' "$payload" >> "$JSONL_PATH" 2>/dev/null || true
+    local _verdict="${1:-pass}"
+    local _pass="${2:-0}" _fail="${3:-0}" _warn="${4:-0}"
+    update_dashboard_compliance "$_pass" "$_fail" "$_warn"
 }
+export -f write_compliance_event 2>/dev/null || true
 
+# CLI mode — allow direct invocation for testing
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     if [[ "${1:-}" == "compliance" ]]; then
-        write_compliance_event "${2:-pass}" "${3:-0}" "${4:-0}" "${5:-0}" "${6:-[]}"
+        update_dashboard_compliance "${2:-0}" "${3:-0}" "${4:-0}"
     else
         write_dashboard_event "${1:-info}" "${2:-}"
     fi
 fi
-
-# Export for subshell use when sourced from .bashrc/.zshrc
-export -f write_dashboard_event    2>/dev/null || true
-export -f write_compliance_event   2>/dev/null || true
