@@ -49,6 +49,7 @@ instructions/_local/
 
 dotfiles.code-workspace
 global.instructions.md.bak
+*.bak
 
 # Client scope (keep templates/docs tracked, ignore real client data)
 clients/*
