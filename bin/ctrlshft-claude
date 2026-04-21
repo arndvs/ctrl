@@ -31,11 +31,14 @@ _push() {
 
     if [[ -p "$PIPE_PATH" ]]; then
         ( printf '%s\n' "$_p" > "$PIPE_PATH" ) 2>/dev/null &
-    elif command -v curl &>/dev/null; then
-        curl -sf --max-time 0.3 \
+    elif command -v curl &>/dev/null && curl -sf --max-time 0.3 \
             "http://localhost:$HTTP_PORT/api/event" \
             -X POST -H "Content-Type: application/json" \
-            -d "$_p" > /dev/null 2>&1 || true
+            -d "$_p" > /dev/null 2>&1; then
+        : # HTTP succeeded
+    else
+        mkdir -p "$DOTFILES/working" 2>/dev/null || true
+        printf '%s\n' "$_p" >> "$DOTFILES/working/events.jsonl" 2>/dev/null || true
     fi
 }
 
@@ -80,6 +83,9 @@ if ! command -v claude &>/dev/null; then
     exit 1
 fi
 
+# ── Ensure session-end fires on exit/interrupt ────────────────────────────────
+trap '_push "info" "Session ended: $PROJECT_ID"' EXIT
+
 # ── Session start event ───────────────────────────────────────────────────────
 _push "context" "Active contexts: $CONTEXTS"
 _push "info" "Session started: $PROJECT_ID"
@@ -98,6 +104,7 @@ if [[ "$*" =~ --print ]] || [[ ! -t 0 ]]; then
         _parse_line "$_line"
         printf '%s\n' "$_line"
     done
+    _exit_code=${PIPESTATUS[0]}
 else
     # Interactive mode — use `script` to capture output while preserving TTY
     # script -q /dev/null runs the command with a pseudo-TTY
@@ -108,16 +115,19 @@ else
                 _parse_line "$_line"
                 # Don't re-print — script already outputs to TTY
             done
+            _exit_code=${PIPESTATUS[0]}
         else
             script -q -e -c "claude $*" /dev/null | while IFS= read -r _line; do
                 _parse_line "$_line"
             done
+            _exit_code=${PIPESTATUS[0]}
         fi
     else
         # No script — run claude directly, lose parsing in interactive mode
         _push "warn" "script(1) not available — interactive mode output not parsed"
         claude "$@"
+        _exit_code=$?
     fi
 fi
 
-_push "info" "Session ended: $PROJECT_ID"
+exit "${_exit_code:-0}"
