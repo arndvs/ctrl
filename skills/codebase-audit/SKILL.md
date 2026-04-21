@@ -46,6 +46,16 @@ Report in this exact format, grouped by severity:
 
 - [file:line] vs [file:line] — which convention to pick and why
 
+## Dashboard Events
+
+Emit bookend events so the compliance dashboard tracks this audit:
+```bash
+# At start
+echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"codebase-audit: started","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+# At end — report findings count
+echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"codebase-audit: completed — N findings","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+```
+
 ## Rules
 
 - Do NOT report missing comments, missing types, or missing docs

@@ -68,3 +68,18 @@ Read the relevant SKILL.md in full, find the most suitable place to integrate th
 - You must engage in exhaustive, deep-level reasoning. Think deeply about edge cases, data integrity, and architectural consequences before writing code and after refactorings.
 - Self-check before committing: "Would a senior engineer say this is overcomplicated?" If yes, simplify. "Does every changed line trace directly to the user's request?" If not, revert the extras.
 </thinking>
+
+<dashboard-events>
+When the compliance dashboard daemon is running (check: `curl -sf http://localhost:7823/api/state > /dev/null 2>&1`), emit bookend events at session milestones. This gives the dashboard visibility into VS Code Copilot sessions that the CLI wrapper (`ctrlshft-claude`) can't observe.
+
+**When to emit:** At skill start, after each milestone (slice done, commit made, audit complete), and at session end. Do NOT emit per-file or per-tool-call — only milestones.
+
+**How:** Run a single terminal command to append to the JSONL file (no curl, no pipe — JSONL is always available):
+```bash
+echo '{"type":"TYPE","project":"PROJECT","projectPath":"PATH","contexts":"CONTEXTS","message":"MESSAGE","timestamp":"TS","time":"TD"}' >> ~/dotfiles/working/events.jsonl
+```
+
+Event types: `info` (start/end/milestone), `read` (skill/rule loaded), `pass`/`fail`/`warn` (compliance results).
+
+Keep it to 3-5 events per session. This is observability, not logging.
+</dashboard-events>

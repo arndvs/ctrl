@@ -11,6 +11,14 @@ Pipeline position: `/grill-me` → `/write-a-prd` → `/architect` → `/prd-to-
 
 ## Workflow
 
+### 0. Dashboard event (if daemon running)
+
+Emit a session-start event so the compliance dashboard tracks this work:
+```bash
+echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"do-work: started — '"$TASK_SUMMARY"'","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+```
+Replace `$TASK_SUMMARY` with a short description. Emit again after each commit (`do-work: committed — <message>`) and at session end (`do-work: completed`).
+
 ### 1. Understand
 
 Read any referenced plan, PRD, or GitHub issue. If none provided, clarify the task with the user before proceeding.
