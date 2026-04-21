@@ -11,12 +11,12 @@ bash ~/dotfiles/bin/start-dashboard.sh
 
 ## Lifecycle Commands
 
-| Command | What it does |
-|---------|-------------|
-| `bash ~/dotfiles/bin/start-dashboard.sh` | Start daemon (default, background) |
-| `bash ~/dotfiles/bin/start-dashboard.sh stop` | Stop daemon |
-| `bash ~/dotfiles/bin/start-dashboard.sh status` | Check if running, show PID and URL |
-| `bash ~/dotfiles/bin/start-dashboard.sh restart` | Stop + start |
+| Command                                             | What it does                         |
+| --------------------------------------------------- | ------------------------------------ |
+| `bash ~/dotfiles/bin/start-dashboard.sh`            | Start daemon (default, background)   |
+| `bash ~/dotfiles/bin/start-dashboard.sh stop`       | Stop daemon                          |
+| `bash ~/dotfiles/bin/start-dashboard.sh status`     | Check if running, show PID and URL   |
+| `bash ~/dotfiles/bin/start-dashboard.sh restart`    | Stop + start                         |
 | `bash ~/dotfiles/bin/start-dashboard.sh foreground` | Run in foreground (no daemonization) |
 
 Port defaults to `7823`. Override with `DASHBOARD_PORT=8080 bash ~/dotfiles/bin/start-dashboard.sh`.
@@ -24,51 +24,50 @@ Port defaults to `7823`. Override with `DASHBOARD_PORT=8080 bash ~/dotfiles/bin/
 ## Architecture
 
 ```
-Agent session
-  │
-  ├── hooks (secret-guard, compaction-guard, etc.)
-  ├── skills (do-work, compliance-audit, etc.)
-  └── detect-context.sh
+Event Producers                              Transport priority:
+  │                                            1. Named pipe (dashboard.pipe)
+  ├── ctrlshft-claude                          2. HTTP POST (:7823/api/event)
+  │     Parses Claude stdout for Read/         3. JSONL append (events.jsonl)
+  │     compliance/context events              
+  ├── detect-context.sh                      
+  │     Inline push on every cd()            
+  ├── detect-client.sh                       
+  │     Client context change events         
+  ├── shft/afk.sh                            
+  │     AFK iteration start/end events       
+  └── write-dashboard-state.sh               
+        Sourceable functions for manual use  
         │
-        ▼
-write-dashboard-state.sh ──→ Transport priority:
-        │                       1. Named pipe (dashboard.pipe)
-        │                       2. HTTP POST to daemon (:7823/api/event)
-        │                       3. JSONL append (working/events.jsonl)
         ▼
 dashboard-daemon.js
   ├── Reads events.jsonl on startup
   ├── Watches for new events (1s poll)
   ├── Persists state to working/dashboard-state.json
-  └── Serves HTTP API
-        │
-        ▼
-dashboard/index.html
-  └── Polls GET /api/state every 5 seconds
+  └── Serves dashboard UI + HTTP API
 ```
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Serves the dashboard UI (`dashboard/index.html`) |
-| GET | `/api/state` | Returns current compliance state as JSON |
-| POST | `/api/event` | Receives compliance events (JSON body) |
-| GET | `/healthz` | Health check — returns `{ "ok": true, "uptime": ... }` |
+| Method | Path         | Description                                            |
+| ------ | ------------ | ------------------------------------------------------ |
+| GET    | `/`          | Serves dashboard UI (`dashboard/index.html`)           |
+| GET    | `/api/state` | Returns current compliance state as JSON               |
+| POST   | `/api/event` | Receives compliance events (JSON body)                 |
+| GET    | `/healthz`   | Health check — returns `{ "ok": true, "uptime": ... }` |
 
 ## Event Types
 
 Events emitted by `write-dashboard-state.sh`:
 
-| Type | Source | Description |
-|------|--------|-------------|
-| `context` | `detect-context.sh` | Active project contexts (nextjs, sanity, etc.) |
-| `info` | Various | Informational messages |
-| `read` | Skill loading | "Read X skill" acknowledgement |
-| `compliance-result` | `compliance-audit` | Full compliance audit result |
-| `pass` | Rule check | Rule compliance passed |
-| `fail` | Rule check | Rule compliance failed |
-| `warn` | Rule check | Rule compliance warning |
+| Type                | Source              | Description                                    |
+| ------------------- | ------------------- | ---------------------------------------------- |
+| `context`           | `detect-context.sh` | Active project contexts (nextjs, sanity, etc.) |
+| `info`              | Various             | Informational messages                         |
+| `read`              | Skill loading       | "Read X skill" acknowledgement                 |
+| `compliance-result` | `compliance-audit`  | Full compliance audit result                   |
+| `pass`              | Rule check          | Rule compliance passed                         |
+| `fail`              | Rule check          | Rule compliance failed                         |
+| `warn`              | Rule check          | Rule compliance warning                        |
 
 ## Data Persistence
 
