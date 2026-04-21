@@ -2390,7 +2390,7 @@
             </p>
 
             <div style="margin: 3rem 0; border: 1px solid var(--border-bright); border-radius: 4px; overflow: hidden;">
-                <img src="assets/ctrlshft-hud.png"
+                <img src="assets/ctrl-shft-hud.png"
                     alt="ctrl+shft HUD — real-time HUD showing project tabs, loaded rules and skills, session log, and compliance history"
                     style="width: 100%; display: block;" loading="lazy" />
             </div>
@@ -2498,7 +2498,8 @@
                             <code>.claude/</code> in your home directory for global instructions, skills, and agents
                             that apply to every project. That makes <code>~/dotfiles</code> the natural home — bootstrap
                             symlinks everything into place so your agent gets the same context on your laptop, VPS, or a
-                            fresh machine.</p>
+                            fresh machine.
+                        </p>
                     </div>
                 </div>
 
@@ -2534,7 +2535,8 @@
                     <div class="faq-answer">
                         <p>No. Everything installs into your home directory — <code>~/dotfiles</code>,
                             <code>~/.claude/</code>, <code>~/.bashrc</code>. No system-level writes, no elevated
-                            permissions required.</p>
+                            permissions required.
+                        </p>
                     </div>
                 </div>
 
@@ -2546,7 +2548,8 @@
                         <p>Depends where it lives. A <code>CLAUDE.md</code> in a project repo is untouched —
                             project-level config always takes precedence over global. If you already have
                             <code>~/.claude/CLAUDE.md</code>, bootstrap will warn you before replacing it. Back it up
-                            first and fold your content into <code>CLAUDE.base.md</code>.</p>
+                            first and fold your content into <code>CLAUDE.base.md</code>.
+                        </p>
                     </div>
                 </div>
 
@@ -2599,7 +2602,8 @@
                             <div class="faq-tier-row">
                                 <div class="faq-tier-label">.env.secrets</div>
                                 <div class="faq-tier-desc">Process-scoped credentials injected via
-                                    <code>run-with-secrets.sh</code> — never exported to shell</div>
+                                    <code>run-with-secrets.sh</code> — never exported to shell
+                                </div>
                             </div>
                             <div class="faq-tier-row">
                                 <div class="faq-tier-label">AFK token</div>
@@ -2624,7 +2628,8 @@
                             settings, or anything outside that scope.</p>
                         <p>Deny rules block it from reading secrets or env vars — even ones technically in scope.
                             <code>env</code>, <code>printenv</code>, <code>cat secrets/*</code>, and
-                            <code>echo $*KEY*</code> are all blocked at the agent level.</p>
+                            <code>echo $*KEY*</code> are all blocked at the agent level.
+                        </p>
                     </div>
                 </div>
 
@@ -2700,7 +2705,8 @@
                         <p>Your personal config lives in gitignored files: <code>secrets/.env.agent</code>,
                             <code>secrets/.env.secrets</code>, <code>skills/_local/</code>, and
                             <code>instructions/_local/</code>. None are tracked, so <code>git pull upstream main</code>
-                            never touches them.</p>
+                            never touches them.
+                        </p>
                         <div class="faq-code-block">
                             <span class="kw">git</span> pull upstream main<br>
                             <span class="kw">bash</span> ~/dotfiles/bin/bootstrap.sh <span class="cm"># regenerates
@@ -2717,7 +2723,8 @@
                     <div class="faq-answer">
                         <p>Symlinks survive pulls — your Claude setup keeps working. The main thing that goes stale is
                             <code>CLAUDE.md</code> if <code>CLAUDE.base.md</code> changed upstream. Bootstrap
-                            regenerates it. It's idempotent, so re-running is always safe.</p>
+                            regenerates it. It's idempotent, so re-running is always safe.
+                        </p>
                     </div>
                 </div>
 
@@ -2730,7 +2737,8 @@
                         <p>"Read X" confirms a rule was loaded into context — not that it was followed. The
                             <code>compliance-audit</code> skill closes the gap: after each task it reviews the diff
                             against every active rule, logs pass/fail/warn to <code>working/compliance-log.md</code>,
-                            and the HUD surfaces compliance rates across sessions in real time.</p>
+                            and the HUD surfaces compliance rates across sessions in real time.
+                        </p>
                         <p>Run <code>/stress-test</code> for adversarial verification before deploying in a team
                             environment. Current compliance on well-formed tasks: ~85–90%, with known failure modes
                             documented and actively tracked.</p>
