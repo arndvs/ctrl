@@ -220,14 +220,35 @@ case "$CMD" in
                 ;;
             events)
                 _project="${1:-${ACTIVE_PROJECT:-default}}"
-                _events_file="$DOTFILES/working/events.jsonl"
-                if [[ ! -f "$_events_file" ]]; then
-                    yellow "No events file found."
-                    exit 0
-                fi
+                _port="${HUD_PORT:-7823}"
                 green "Recent events for project: $_project"
                 echo ""
-                grep "\"project\":\"$_project\"" "$_events_file" 2>/dev/null | tail -20 || echo "  No events for $_project"
+                # Prefer API when daemon is running, fall back to JSONL grep
+                if _dashboard_running && command -v curl &>/dev/null; then
+                    curl -s "http://localhost:$_port/api/events/$_project?limit=20" 2>/dev/null \
+                        | python3 -c "
+import json, sys
+try:
+    events = json.load(sys.stdin)
+    if not events:
+        print('  No events for this project.')
+        sys.exit(0)
+    for e in events:
+        ts = e.get('time', e.get('timestamp', '')[:19])
+        etype = e.get('type', '?')
+        msg = e.get('message', '')
+        print(f'  {ts}  [{etype:5}]  {msg}')
+except:
+    print('  Could not parse API response.')
+" 2>/dev/null || echo "  API query failed — try: ctrl dashboard logs"
+                else
+                    _events_file="$DOTFILES/working/events.jsonl"
+                    if [[ ! -f "$_events_file" ]]; then
+                        yellow "No events file found."
+                        exit 0
+                    fi
+                    grep "\"project\":\"$_project\"" "$_events_file" 2>/dev/null | tail -20 || echo "  No events for $_project"
+                fi
                 echo ""
                 ;;
             clear)
@@ -240,9 +261,50 @@ case "$CMD" in
                         mv "$_events_file.tmp" "$_events_file"
                         green "Events cleared for $_project."
                     fi
+                    # Also dismiss from running daemon if active
+                    if _dashboard_running && command -v curl &>/dev/null; then
+                        _port="${HUD_PORT:-7823}"
+                        curl -sX DELETE "http://localhost:$_port/api/projects/$_project" >/dev/null 2>&1 || true
+                    fi
                 else
                     echo "  Cancelled."
                 fi
+                ;;
+            violations)
+                _project="${1:-${ACTIVE_PROJECT:-default}}"
+                _port="${HUD_PORT:-7823}"
+                if ! _dashboard_running; then
+                    yellow "Dashboard not running. Start it first: ctrl dashboard"
+                    exit 1
+                fi
+                green "Violations for project: $_project"
+                echo ""
+                curl -s "http://localhost:$_port/api/violations/$_project" 2>/dev/null \
+                    | python3 -c "
+import json, sys
+try:
+    violations = json.load(sys.stdin)
+    if not violations:
+        print('  No violations recorded.')
+        sys.exit(0)
+    for v in violations:
+        ts = v.get('time', v.get('timestamp', '')[:19])
+        msg = v.get('message', '')
+        print(f'  {ts}  {msg}')
+except:
+    print('  Could not parse API response.')
+" 2>/dev/null || echo "  API query failed."
+                echo ""
+                ;;
+            state)
+                _port="${HUD_PORT:-7823}"
+                if ! _dashboard_running; then
+                    yellow "Dashboard not running. Start it first: ctrl dashboard"
+                    exit 1
+                fi
+                curl -s "http://localhost:$_port/api/state" 2>/dev/null \
+                    | python3 -m json.tool 2>/dev/null \
+                    || echo "  Could not fetch state."
                 ;;
             open)
                 _port="${DASHBOARD_PORT:-7823}"
@@ -258,7 +320,7 @@ case "$CMD" in
                 ;;
             *)
                 red "Unknown dashboard subcommand: $_dash_cmd"
-                echo "  Usage: ctrl dashboard [start|stop|status|restart|logs|events|clear|open|url]"
+                echo "  Usage: ctrl dashboard [start|stop|status|restart|logs|events|clear|violations|state|open|url]"
                 exit 1
                 ;;
         esac
@@ -391,6 +453,8 @@ case "$CMD" in
         echo "  ctrl dashboard logs     show dashboard log (add -f to follow)"
         echo "  ctrl dashboard events   show recent events for current project"
         echo "  ctrl dashboard clear    clear events for a project"
+        echo "  ctrl dashboard violations  show violations for a project"
+        echo "  ctrl dashboard state    full debug state dump (JSON)"
         echo "  ctrl dashboard open     open dashboard in browser"
         echo "  ctrl dashboard url      print the dashboard URL"
         echo ""
