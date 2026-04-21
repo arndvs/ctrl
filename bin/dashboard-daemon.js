@@ -1,4 +1,20 @@
 #!/usr/bin/env node
+// dashboard-daemon.js — compliance dashboard HTTP server (zero dependencies)
+//
+// Usage:  node bin/dashboard-daemon.js [--port PORT]
+//
+// API endpoints:
+//   GET  /            — serves dashboard/index.html
+//   GET  /api/state   — returns current compliance state JSON
+//   POST /api/event   — receives compliance events (JSON body)
+//   GET  /healthz     — health check
+//
+// Data persistence (all in working/, gitignored):
+//   events.jsonl          — append-only event log
+//   dashboard-state.json  — current aggregated state
+//
+// Typically started via bin/start-dashboard.sh, not directly.
+
 'use strict';
 
 const fs = require('fs');
