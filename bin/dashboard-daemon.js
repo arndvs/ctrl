@@ -183,6 +183,12 @@ function getOrCreateSession(projectId, projectPath, contexts, source) {
     if (sessions.has(projectId)) {
         const s = sessions.get(projectId);
         if (contexts?.length) s.contexts = contexts;
+        // Un-dismiss if new events arrive for a previously dismissed project
+        if (dismissedProjects.has(projectId)) {
+            dismissedProjects.delete(projectId);
+            saveDismissed();
+            dbg('Un-dismissed project (existing session):', projectId);
+        }
         return s;
     }
 
