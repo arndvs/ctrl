@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# write-dashboard-state.sh — Push events to the dashboard daemon.
+# write-dashboard-state.sh — Push events to the HUD daemon.
 #
 # Source this file:
 #   source ~/dotfiles/bin/write-dashboard-state.sh
@@ -44,11 +44,13 @@ _can_use_pipe() {
 write_dashboard_event() {
     local _type="$1"
     local _msg="$2"
+    local _proj_override="${3:-}"   # optional: project name override
+    local _path_override="${4:-}"   # optional: project path override
 
     # Collect context
     local _proj
-    _proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
-    local _path="${PWD/$HOME/~}"
+    _proj="${_proj_override:-$(basename "$(pwd)" 2>/dev/null || echo "unknown")}"
+    local _path="${_path_override:-${PWD/$HOME/\~}}"
     local _ctx="${ACTIVE_CONTEXTS:-general}"
 
     # Timestamps

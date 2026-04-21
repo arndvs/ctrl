@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * dashboard-daemon.js — ctrl+shft compliance dashboard daemon
+ * dashboard-daemon.js — ctrl+shft HUD daemon
  *
  * Zero external dependencies in core path.
  * Optional: better-sqlite3 for persistent history (falls back to in-memory + JSONL)
@@ -65,7 +65,7 @@ try {
     fs.mkdirSync(LOCK_DIR);
 } catch (e) {
     if (e.code === 'EEXIST') {
-        console.error('[ctrlshft] Dashboard daemon already running. Use --stop to stop it.');
+        console.error('[ctrlshft] HUD daemon already running. Use --stop to stop it.');
         process.exit(1);
     }
     throw e;
@@ -317,7 +317,8 @@ function processLine(raw, source) {
 
 function handleRead(session, event) {
     let filename = event.message.replace(/^Read\s+/, '').trim();
-    let fileType = 'instruction';
+    let fileType = 'file';
+    if (filename.includes('instructions/') || filename.endsWith('.instructions.md')) fileType = 'instruction';
     if (filename.includes('skills/')) fileType = 'skill';
     if (filename.includes('rules/'))  fileType = 'rule';
     if (filename.includes('agents/')) fileType = 'agent';
@@ -845,9 +846,9 @@ function startHttpServer() {
         res.end('Not found');
     });
 
-    server.listen(HTTP_PORT, '127.0.0.1', () => log('Dashboard: http://localhost:' + HTTP_PORT));
+    server.listen(HTTP_PORT, '127.0.0.1', () => log('HUD: http://localhost:' + HTTP_PORT));
     server.on('error', e => e.code === 'EADDRINUSE'
-        ? warn(`Port ${HTTP_PORT} in use — is the dashboard already running?`)
+        ? warn(`Port ${HTTP_PORT} in use — is the HUD already running?`)
         : warn('HTTP error:', e.message));
 }
 
@@ -855,8 +856,8 @@ function fallbackHtml() {
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ctrl+shft</title>
 <style>body{background:#080808;color:#fff;font-family:monospace;padding:4rem}
 h1{color:#e8ff47}p{color:#9f9fa9}code{color:#e8ff47}</style></head><body>
-<h1>ctrl+shft dashboard</h1>
-<p>Daemon is running. Place <code>dashboard/index.html</code> in the <code>dashboard/</code> folder for the full UI.</p>
+<h1>ctrl+shft HUD</h1>
+<p>Daemon is running. Place <code>dashboard/index.html</code> in the <code>dashboard/</code> folder for the full HUD.</p>
 <p>API: <code><a href="/api/state" style="color:#e8ff47">/api/state</a></code></p>
 <p>WebSocket: <code>ws://localhost:${WS_PORT}</code></p>
 <script>
