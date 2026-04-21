@@ -11,7 +11,7 @@ const WORKING = path.join(DOTFILES, 'working');
 const PIPE_PATH = path.join(WORKING, 'dashboard.pipe');
 const JSONL_PATH = path.join(WORKING, 'events.jsonl');
 const STATE_PATH = path.join(WORKING, 'dashboard-state.json');
-const DASHBOARD_HTML = path.join(WORKING, 'dashboard.html');
+const DASHBOARD_HTML = path.join(DOTFILES, 'dashboard', 'index.html');
 
 const args = process.argv.slice(2);
 const argValue = (flag, fallback) => {
