@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.claude/hooks/dashboard-session.sh\""
+            "command": "\"$HOME/.claude/hooks/hud-session.sh\""
           }
         ]
       }
@@ -38,7 +38,7 @@
           },
           {
             "type": "command",
-            "command": "\"$HOME/.claude/hooks/dashboard-session.sh\""
+            "command": "\"$HOME/.claude/hooks/hud-session.sh\""
           }
         ]
       }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.claude/hooks/dashboard-reads.sh\""
+            "command": "\"$HOME/.claude/hooks/hud-reads.sh\""
           }
         ]
       }
@@ -59,7 +59,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.claude/hooks/dashboard-reads.sh\""
+            "command": "\"$HOME/.claude/hooks/hud-reads.sh\""
           }
         ]
       }

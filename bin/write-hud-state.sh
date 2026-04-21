@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# write-dashboard-state.sh — Push events to the HUD daemon.
+# write-hud-state.sh — Push events to the HUD daemon.
 #
 # Source this file:
-#   source ~/dotfiles/bin/write-dashboard-state.sh
+#   source ~/dotfiles/bin/write-hud-state.sh
 #
 # Then call:
-#   write_dashboard_event "read"    "Read skills/do-work/SKILL.md"
-#   write_dashboard_event "pass"    "global.instructions.md — Surgical Changes ✓"
-#   write_dashboard_event "fail"    "VIOLATION — rules/migration-safety.md — no rollback"
-#   write_dashboard_event "warn"    "typescript.instructions.md — implicit any detected"
-#   write_dashboard_event "info"    "Task started: implement user avatar"
-#   write_dashboard_event "context" "Active contexts: general,nextjs,typescript"
-#   update_dashboard_compliance 8 1 2    # pass fail warn
+#   write_hud_event "read"    "Read skills/do-work/SKILL.md"
+#   write_hud_event "pass"    "global.instructions.md — Surgical Changes ✓"
+#   write_hud_event "fail"    "VIOLATION — rules/migration-safety.md — no rollback"
+#   write_hud_event "warn"    "typescript.instructions.md — implicit any detected"
+#   write_hud_event "info"    "Task started: implement user avatar"
+#   write_hud_event "context" "Active contexts: general,nextjs,typescript"
+#   update_hud_compliance 8 1 2    # pass fail warn
 #
 # Called by:
 #   detect-context.sh  → context events (every cd)
@@ -29,9 +29,9 @@
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 _WD="$DOTFILES/working"
-_PIPE="$_WD/dashboard.pipe"
+_PIPE="$_WD/hud.pipe"
 _JSONL="$_WD/events.jsonl"
-_HTTP_PORT="${DASHBOARD_PORT:-7823}"
+_HTTP_PORT="${HUD_PORT:-7823}"
 
 # ── _can_use_pipe — check if named pipe transport is available ────────────────
 # Returns 0 (true) if the pipe exists, is a FIFO, and we're not on MSYS/Windows
@@ -40,8 +40,8 @@ _can_use_pipe() {
     [[ -p "$_PIPE" && "$(uname -o 2>/dev/null)" != "Msys" ]]
 }
 
-# ── write_dashboard_event ─────────────────────────────────────────────────────
-write_dashboard_event() {
+# ── write_hud_event ─────────────────────────────────────────────────────
+write_hud_event() {
     local _type="$1"
     local _msg="$2"
     local _proj_override="${3:-}"   # optional: project name override
@@ -91,10 +91,10 @@ write_dashboard_event() {
     printf '%s\n' "$_payload" >> "$_JSONL" 2>/dev/null || true
 }
 
-# ── update_dashboard_compliance ───────────────────────────────────────────────
+# ── update_hud_compliance ───────────────────────────────────────────────
 # Called by compliance-audit skill at end of each audit.
-# Usage: update_dashboard_compliance <pass_count> <fail_count> <warn_count>
-update_dashboard_compliance() {
+# Usage: update_hud_compliance <pass_count> <fail_count> <warn_count>
+update_hud_compliance() {
     local _pass="${1:-0}" _fail="${2:-0}" _warn="${3:-0}"
     local _total=$(( _pass + _fail + _warn ))
     local _rate=0
@@ -125,14 +125,14 @@ update_dashboard_compliance() {
 
 # Export for use in subshells
 export -f _can_use_pipe                  2>/dev/null || true
-export -f write_dashboard_event          2>/dev/null || true
-export -f update_dashboard_compliance    2>/dev/null || true
+export -f write_hud_event          2>/dev/null || true
+export -f update_hud_compliance    2>/dev/null || true
 
 # Backward-compatible alias (shipped name used by older callers)
 write_compliance_event() {
     local _verdict="${1:-pass}"
     local _pass="${2:-0}" _fail="${3:-0}" _warn="${4:-0}"
-    update_dashboard_compliance "$_pass" "$_fail" "$_warn"
+    update_hud_compliance "$_pass" "$_fail" "$_warn"
 }
 export -f write_compliance_event 2>/dev/null || true
 
@@ -141,7 +141,7 @@ export -f write_compliance_event 2>/dev/null || true
 # Usage: emit_loaded_files "global.instructions.md" "skills/do-work/SKILL.md" ...
 emit_loaded_files() {
     for f in "$@"; do
-        write_dashboard_event "read" "Read $f"
+        write_hud_event "read" "Read $f"
     done
 }
 export -f emit_loaded_files 2>/dev/null || true
@@ -149,11 +149,11 @@ export -f emit_loaded_files 2>/dev/null || true
 # CLI mode — allow direct invocation for testing
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     if [[ "${1:-}" == "compliance" ]]; then
-        update_dashboard_compliance "${2:-0}" "${3:-0}" "${4:-0}"
+        update_hud_compliance "${2:-0}" "${3:-0}" "${4:-0}"
     elif [[ "${1:-}" == "reads" ]]; then
         shift
         emit_loaded_files "$@"
     else
-        write_dashboard_event "${1:-info}" "${2:-}"
+        write_hud_event "${1:-info}" "${2:-}"
     fi
 fi

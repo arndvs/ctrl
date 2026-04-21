@@ -1421,7 +1421,7 @@
         }
 
         // ── Data layer — live API fetch ──────────────────────────────────────────────
-        async function loadDashboardState() {
+        async function loadHudState() {
             const res = await fetch(API_BASE + '/api/state');
             if (!res.ok) throw new Error('API returned ' + res.status);
             const raw = await res.json();
@@ -1801,7 +1801,7 @@
         // ── Main render ───────────────────────────────────────────────────────────────
         function renderAll() {
             if (!state || !state.projects.length) {
-                renderEmptyDashboard();
+                renderEmptyHud();
                 return;
             }
 
@@ -1822,7 +1822,7 @@
                 'updated ' + state.lastUpdated.toLocaleTimeString();
         }
 
-        function renderEmptyDashboard() {
+        function renderEmptyHud() {
             const bar = document.getElementById('project-bar');
             bar.textContent = '';
             bar.appendChild(el('span', { style: 'padding:0.8rem;font-size:1.1rem;color:var(--text-dimmer);' },
@@ -1864,12 +1864,12 @@
 
         document.getElementById('refresh-btn').addEventListener('click', async function() {
             try {
-                state = await loadDashboardState();
+                state = await loadHudState();
                 if (!currentProject && state.projects.length) {
                     currentProject = state.projects[0].id;
                 }
                 renderAll();
-                showToast('Dashboard refreshed', 'success');
+                showToast('HUD refreshed', 'success');
             } catch (err) {
                 showToast('Refresh failed: ' + err.message, 'error');
             }
@@ -1963,9 +1963,9 @@
 
         async function init() {
             try {
-                state = await loadDashboardState();
+                state = await loadHudState();
             } catch (err) {
-                console.warn('[dashboard] initial fetch failed, showing empty state:', err.message);
+                console.warn('[hud] initial fetch failed, showing empty state:', err.message);
                 state = emptyState();
             }
             restoreFromHash();
@@ -1986,7 +1986,7 @@
                 const liveDot = document.getElementById('live-dot');
                 const liveStatus = document.getElementById('live-status');
                 try {
-                    state = await loadDashboardState();
+                    state = await loadHudState();
                     if (!currentProject && state.projects.length) {
                         currentProject = state.projects[0].id;
                     }

@@ -81,12 +81,12 @@ fi
 export ACTIVE_CONTEXTS="$contexts"
 echo "$contexts"
 
-# ── Dashboard context event (inline, non-blocking, never fails) ───────────────
+# ── HUD context event (inline, non-blocking, never fails) ───────────────
 # Pushes a context-change event to the HUD daemon on every cd().
 # Inline push avoids subprocess overhead — this runs on every directory change.
 {
     _dc_dotfiles="${DOTFILES:-$HOME/dotfiles}"
-    _dc_pipe="$_dc_dotfiles/working/dashboard.pipe"
+    _dc_pipe="$_dc_dotfiles/working/hud.pipe"
     _dc_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
     _dc_td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
     _dc_proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")

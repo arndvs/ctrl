@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dashboard-reads.sh — Emit "read" events to the HUD daemon.
+# hud-reads.sh — Emit "read" events to the HUD daemon.
 #
 # Handles two Claude Code hook events:
 #   PostToolUse(Read)    → fires after every file read
@@ -49,13 +49,13 @@ DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 DOTFILES_N=$(normalize "$DOTFILES")
 
 # Source event emitter
-source "$DOTFILES/bin/write-dashboard-state.sh"
+source "$DOTFILES/bin/write-hud-state.sh"
 
 # ── Mode 1: Dotfiles file (instruction/skill/rule/agent) ─────────────────────
 if [[ "$FILE_PATH" == "$DOTFILES_N"/* ]]; then
     REL_PATH="${FILE_PATH#$DOTFILES_N/}"
 
-    # Filter: only dashboard-relevant files
+    # Filter: only HUD-relevant files
     case "$REL_PATH" in
         *.instructions.md|CLAUDE.md|CLAUDE.base.md) ;;
         instructions/*)                              ;;
@@ -65,7 +65,7 @@ if [[ "$FILE_PATH" == "$DOTFILES_N"/* ]]; then
         *)                                           exit 0 ;;
     esac
 
-    write_dashboard_event "read" "Read $REL_PATH"
+    write_hud_event "read" "Read $REL_PATH"
     exit 0
 fi
 
@@ -100,5 +100,5 @@ else
     _rel=$(basename "$FILE_PATH")
 fi
 
-write_dashboard_event "read" "Read $_rel" "$_project" "$_project_path"
+write_hud_event "read" "Read $_rel" "$_project" "$_project_path"
 exit 0

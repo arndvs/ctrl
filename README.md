@@ -411,7 +411,7 @@ docker sandbox run claude .
 ├── CHANGELOG.md                     ← release history
 ├── CONTRIBUTING.md                  ← contribution guide
 ├── global.instructions.md           ← universal rules, always loaded
-├── package.json                     ← optional deps (better-sqlite3 for dashboard persistence)
+├── package.json                     ← optional deps (better-sqlite3 for HUD persistence)
 ├── settings.json                    ← managed VS Code settings
 ├── .env.agent.example               ← template for non-sensitive config
 ├── .env.citation.example            ← template for citation skill config
@@ -503,11 +503,11 @@ docker sandbox run claude .
 │   ├── validate-symlinks.sh         verify bootstrap symlinks
 │   ├── mint_github_app_token.py     AFK token minting
 │   ├── verify-github-app-token.sh   safe token verification
-│   ├── dashboard-daemon.js          HUD HTTP server
-│   ├── start-dashboard.sh           daemon lifecycle (start/stop/status/restart)
-│   └── write-dashboard-state.sh     non-blocking compliance event emitter
-├── dashboard/                       ← HUD UI
-│   ├── README.md                    dashboard architecture + API reference
+│   ├── hud-daemon.js          HUD HTTP server
+│   ├── start-hud.sh           daemon lifecycle (start/stop/status/restart)
+│   └── write-hud-state.sh     non-blocking compliance event emitter
+├── hud/                       ← HUD UI
+│   ├── README.md                    HUD architecture + API reference
 │   └── index.html
 ├── site/                            ← landing page (ctrlshft.dev)
 │   ├── index.html
@@ -745,13 +745,13 @@ Project contributors: [arndvs/ctrlshft/graphs/contributors](https://github.com/a
 ## HUD — real-time agent observability
 
 <p align="center">
-  <img src="site/assets/hud-screenshot.png" alt="ctrl+shft HUD — real-time compliance dashboard showing project tabs, loaded rules and skills, session log, and compliance history" style="width: 100%; max-width: 1200px; height: auto; border: 1px solid #1e1e1e;" />
+  <img src="site/assets/hud-screenshot.png" alt="ctrl+shft HUD — real-time HUD showing project tabs, loaded rules and skills, session log, and compliance history" style="width: 100%; max-width: 1200px; height: auto; border: 1px solid #1e1e1e;" />
 </p>
 
-The HUD is a live dashboard that shows what your agent is actually doing — which rules loaded, which skills fired, which projects are being touched, and whether compliance checks pass or fail. It runs locally at `localhost:7823` and updates in real-time via WebSocket.
+The HUD is a live HUD that shows what your agent is actually doing — which rules loaded, which skills fired, which projects are being touched, and whether compliance checks pass or fail. It runs locally at `localhost:7823` and updates in real-time via WebSocket.
 
 ```bash
-bash ~/dotfiles/bin/start-dashboard.sh
+bash ~/dotfiles/bin/start-hud.sh
 # Visit http://localhost:7823
 ```
 
@@ -775,9 +775,9 @@ bash ~/dotfiles/bin/start-dashboard.sh
 
 The HUD has three layers:
 
-1. **Event producers** — hooks (`dashboard-reads.sh`, `dashboard-session.sh`), `detect-context.sh`, `compliance-audit` skill, and `write-dashboard-state.sh` (sourceable shell functions)
-2. **Daemon** — `bin/dashboard-daemon.js` (~880 lines, zero required npm dependencies). Listens on named pipe (< 1ms), HTTP POST, and JSONL file watcher. Optional SQLite persistence via `better-sqlite3`
-3. **Frontend** — `dashboard/index.html` (single-file). Connects via WebSocket (`ws://localhost:7822`) for real-time updates, falls back to HTTP polling
+1. **Event producers** — hooks (`hud-reads.sh`, `hud-session.sh`), `detect-context.sh`, `compliance-audit` skill, and `write-hud-state.sh` (sourceable shell functions)
+2. **Daemon** — `bin/hud-daemon.js` (~880 lines, zero required npm dependencies). Listens on named pipe (< 1ms), HTTP POST, and JSONL file watcher. Optional SQLite persistence via `better-sqlite3`
+3. **Frontend** — `hud/index.html` (single-file). Connects via WebSocket (`ws://localhost:7822`) for real-time updates, falls back to HTTP polling
 
 Cross-project tracking works automatically. When the agent reads files outside `~/dotfiles/`, the reads hook walks up the directory tree to find the `.git` root, extracts the project name, and routes events to the correct project tab.
 
@@ -785,12 +785,12 @@ Cross-project tracking works automatically. When the agent reads files outside `
 
 | Command | What it does |
 |---------|-------------|
-| `bash ~/dotfiles/bin/start-dashboard.sh` | Start daemon (background) |
-| `bash ~/dotfiles/bin/start-dashboard.sh stop` | Stop daemon |
-| `bash ~/dotfiles/bin/start-dashboard.sh status` | Check if running |
-| `bash ~/dotfiles/bin/start-dashboard.sh restart` | Stop + start |
+| `bash ~/dotfiles/bin/start-hud.sh` | Start daemon (background) |
+| `bash ~/dotfiles/bin/start-hud.sh stop` | Stop daemon |
+| `bash ~/dotfiles/bin/start-hud.sh status` | Check if running |
+| `bash ~/dotfiles/bin/start-hud.sh restart` | Stop + start |
 
-Port defaults to `7823`. Override with `DASHBOARD_PORT=8080`.
+Port defaults to `7823`. Override with `HUD_PORT=8080`.
 
 ### Optional: persistent history
 
@@ -800,7 +800,7 @@ cd ~/dotfiles && npm install better-sqlite3
 
 Without it, the daemon uses in-memory buffers + JSONL fallback. History resets on restart.
 
-See [`dashboard/README.md`](dashboard/README.md) for the full API reference, event types, auto-start configuration (launchd/systemd), and data persistence details.
+See [`hud/README.md`](hud/README.md) for the full API reference, event types, auto-start configuration (launchd/systemd), and data persistence details.
 
 ---
 
@@ -818,7 +818,7 @@ See [`dashboard/README.md`](dashboard/README.md) for the full API reference, eve
 | CI Telemetry Reports   | AFK      | GitHub Actions daily reports + README badge for cost and accuracy                                                                   |
 | Enable OTEL            | HITL     | Turn on VS Code's built-in OpenTelemetry, document what it actually emits                                                           |
 | Accuracy Framework     | HITL     | Human scoring UX + automated proxy signals (test pass/fail, reverts, re-opened issues)                                              |
-| Telemetry Dashboard    | HITL     | Full telemetry dashboard — cost, tokens, model distribution, accuracy, hallucination rate (extends existing HUD)    |
+| Telemetry HUD    | HITL     | Full telemetry HUD — cost, tokens, model distribution, accuracy, hallucination rate (extends existing HUD)    |
 
 ### Key constraints
 
@@ -925,7 +925,7 @@ Symlinks survive pulls — your setup keeps working. The main thing that goes st
 
 **How do I know the agent is actually following the rules, not just loading them?**
 
-"Read X" confirms a rule was loaded into context — not that it was followed. The `compliance-audit` skill closes the gap: after each task it reviews the diff against every active rule, logs pass/fail/warn to `working/compliance-log.md`, and the HUD dashboard surfaces compliance rates in real time. Run `/stress-test` for adversarial verification. Current compliance on well-formed tasks: ~85–90%, with known failure modes documented and actively tracked.
+"Read X" confirms a rule was loaded into context — not that it was followed. The `compliance-audit` skill closes the gap: after each task it reviews the diff against every active rule, logs pass/fail/warn to `working/compliance-log.md`, and the HUD surfaces compliance rates in real time. Run `/stress-test` for adversarial verification. Current compliance on well-formed tasks: ~85–90%, with known failure modes documented and actively tracked.
 
 </details>
 

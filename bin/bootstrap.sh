@@ -334,8 +334,8 @@ _SHELL_SNIPPET=$(cat << 'SHELLEOF'
 # ── dotfiles/load-secrets ──
 [[ -f ~/dotfiles/bin/load-secrets.sh ]] && source ~/dotfiles/bin/load-secrets.sh
 
-# ── dotfiles/dashboard ──
-[[ -f ~/dotfiles/bin/write-dashboard-state.sh ]] && source ~/dotfiles/bin/write-dashboard-state.sh
+# ── dotfiles/hud ──
+[[ -f ~/dotfiles/bin/write-hud-state.sh ]] && source ~/dotfiles/bin/write-hud-state.sh
 [[ -x ~/dotfiles/bin/ctrlshft-claude ]] && alias claude='~/dotfiles/bin/ctrlshft-claude'
 
 # ── dotfiles/context-detection ──

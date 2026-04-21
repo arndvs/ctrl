@@ -21,9 +21,10 @@ Trigger this approach when asked to:
 
 ## How to Execute
 
-0. **Dashboard event** — emit a start event so the dashboard tracks this exploration:
+0. **HUD event** — emit a start event so the HUD tracks this exploration:
    ```bash
-   echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"explore: started — '"$TOPIC"'","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+   source ~/dotfiles/bin/write-hud-state.sh
+   write_hud_event "info" "explore: started — $TOPIC"
    ```
    Emit again at synthesis (`explore: completed — N sub-agents, M files covered`).
 1. **Decompose** the topic into distinct areas of concern
