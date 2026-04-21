@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ctrl+shft — Compliance Dashboard</title>
+    <title>ctrl+shft — HUD</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ff47' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19h8'/%3E%3Cpath d='m4 17 6-6-6-6'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
@@ -1090,7 +1090,7 @@
         <div class="header-left">
             <span class="logo">ctrl<span class="logo-dim">+shft</span></span>
             <span class="header-sep">/</span>
-            <span class="header-title">Compliance Dashboard</span>
+            <span class="header-title">HUD</span>
         </div>
         <div class="header-center">
             <div class="search-box">
@@ -1303,7 +1303,7 @@
 
     <script>
         // ─────────────────────────────────────────────────────────────────────────────
-        // ctrl+shft Compliance Dashboard v2
+        // ctrl+shft HUD v2
         //
         // Live data from /api/state + WebSocket incremental updates.
         // No external JS dependencies. Safe DOM APIs only (no innerHTML).
@@ -1315,6 +1315,44 @@
         let selectedHistoryIndex = null;
         let logFilter = 'all';
         const API_BASE = window.location.origin;
+
+        // ── URL hash state ───────────────────────────────────────────────────────
+        function readHash() {
+            const params = new URLSearchParams(location.hash.slice(1));
+            return {
+                project: params.get('project') || null,
+                filter: params.get('filter') || 'all',
+            };
+        }
+
+        function writeHash() {
+            const params = new URLSearchParams();
+            if (currentProject) params.set('project', currentProject);
+            if (logFilter && logFilter !== 'all') params.set('filter', logFilter);
+            const hash = '#' + params.toString();
+            if (location.hash !== hash) {
+                history.pushState(null, '', hash || '#');
+            }
+        }
+
+        function restoreFromHash() {
+            const h = readHash();
+            if (h.project && state && state.projects.some(p => p.id === h.project)) {
+                currentProject = h.project;
+            }
+            if (['all','info','warn','error'].includes(h.filter)) {
+                logFilter = h.filter;
+                document.querySelectorAll('.panel-tab[data-filter]').forEach(function(t) {
+                    t.classList.toggle('active', t.dataset.filter === logFilter);
+                });
+            }
+        }
+
+        window.addEventListener('popstate', function() {
+            restoreFromHash();
+            selectedHistoryIndex = null;
+            renderAll();
+        });
 
         // ── Helpers ──────────────────────────────────────────────────────────────────
         function str(val) {
@@ -1489,7 +1527,7 @@
                 const btn = el('button', {
                     className: 'project-tab' + (p.id === activeId ? ' active' : ''),
                     dataset: { project: p.id },
-                    onClick: () => { currentProject = p.id; selectedHistoryIndex = null; renderAll(); },
+                    onClick: () => { currentProject = p.id; selectedHistoryIndex = null; writeHash(); renderAll(); },
                 }, dot, ' ' + str(p.name), stats, closeBtn);
                 bar.appendChild(btn);
             }
@@ -1756,6 +1794,7 @@
             if (currentProject === projectId) {
                 currentProject = state.projects[0]?.id || null;
             }
+            writeHash();
             renderAll();
         }
 
@@ -1842,6 +1881,7 @@
                 document.querySelectorAll('.panel-tab[data-filter]').forEach(function(t) { t.classList.remove('active'); });
                 tab.classList.add('active');
                 logFilter = tab.dataset.filter;
+                writeHash();
                 renderLog(currentProject);
             });
         });
@@ -1862,6 +1902,7 @@
                     : (idx + 1) % state.projects.length;
                 currentProject = state.projects[newIdx].id;
                 selectedHistoryIndex = null;
+                writeHash();
                 renderAll();
             }
         });
@@ -1927,9 +1968,11 @@
                 console.warn('[dashboard] initial fetch failed, showing empty state:', err.message);
                 state = emptyState();
             }
-            if (state.projects.length) {
+            restoreFromHash();
+            if (!currentProject && state.projects.length) {
                 currentProject = state.projects[0].id;
             }
+            writeHash();
             renderAll();
 
             // Try WebSocket for real-time updates
