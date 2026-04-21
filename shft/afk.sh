@@ -22,12 +22,16 @@ mkdir -p "$WORKING_DIR"
 
 _push_afk_event() {
     local _type="$1" _msg="$2"
-    local _ts _pipe
+    local _ts _td _pipe _proj _path _ctx
     _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
+    _td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
     _pipe="$WORKING_DIR/dashboard.pipe"
+    _proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
+    _path="${PWD/$HOME/~}"
+    _ctx="${ACTIVE_CONTEXTS:-general}"
     local _payload
-    _payload=$(printf '{"type":"%s","project":"%s","message":"%s","timestamp":"%s","source":"afk"}\n' \
-        "$_type" "$(basename "$(pwd)")" "$_msg" "$_ts")
+    _payload=$(printf '{"type":"%s","project":"%s","projectPath":"%s","contexts":"%s","message":"%s","timestamp":"%s","time":"%s","source":"afk"}' \
+        "$_type" "$_proj" "$_path" "$_ctx" "$_msg" "$_ts" "$_td")
     if [[ -p "$_pipe" ]]; then
         ( printf '%s\n' "$_payload" > "$_pipe" ) 2>/dev/null &
     else

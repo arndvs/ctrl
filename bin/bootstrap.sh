@@ -336,6 +336,7 @@ _SHELL_SNIPPET=$(cat << 'SHELLEOF'
 
 # ── dotfiles/dashboard ──
 [[ -f ~/dotfiles/bin/write-dashboard-state.sh ]] && source ~/dotfiles/bin/write-dashboard-state.sh
+[[ -x ~/dotfiles/bin/ctrlshft-claude ]] && alias claude='~/dotfiles/bin/ctrlshft-claude'
 
 # ── dotfiles/context-detection ──
 _load_context() {

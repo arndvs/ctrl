@@ -24,7 +24,7 @@ _push() {
     _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
     _td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
     local _safe
-    _safe=$(printf '%s' "$_msg" | sed 's/</\&lt;/g; s/>/\&gt;/g; s/"/\\"/g')
+    _safe=$(printf '%s' "$_msg" | sed 's/\\/\\\\/g; s/"/\\"/g')
     local _p
     _p=$(printf '{"type":"%s","project":"%s","projectPath":"%s","contexts":"%s","message":"%s","timestamp":"%s","time":"%s"}' \
         "$_type" "$PROJECT_ID" "$PROJECT_PATH" "$CONTEXTS" "$_safe" "$_ts" "$_td")

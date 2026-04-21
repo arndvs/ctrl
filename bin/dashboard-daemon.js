@@ -211,7 +211,7 @@ const server = http.createServer((req, res) => {
       res.end(html);
     } catch {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('dashboard.html not found — place it at working/dashboard.html');
+      res.end('dashboard/index.html not found — expected at ' + DASHBOARD_HTML);
     }
     return;
   }
