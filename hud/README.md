@@ -5,7 +5,7 @@ Real-time compliance visibility for ctrl+shft agent sessions — which rules loa
 ## Quick Start
 
 ```bash
-bash ~/dotfiles/bin/start-dashboard.sh
+bash ~/dotfiles/bin/start-hud.sh
 # Visit http://localhost:7823
 ```
 
@@ -13,19 +13,19 @@ bash ~/dotfiles/bin/start-dashboard.sh
 
 | Command                                             | What it does                         |
 | --------------------------------------------------- | ------------------------------------ |
-| `bash ~/dotfiles/bin/start-dashboard.sh`            | Start daemon (default, background)   |
-| `bash ~/dotfiles/bin/start-dashboard.sh stop`       | Stop daemon                          |
-| `bash ~/dotfiles/bin/start-dashboard.sh status`     | Check if running, show PID and URL   |
-| `bash ~/dotfiles/bin/start-dashboard.sh restart`    | Stop + start                         |
-| `bash ~/dotfiles/bin/start-dashboard.sh foreground` | Run in foreground (no daemonization) |
+| `bash ~/dotfiles/bin/start-hud.sh`            | Start daemon (default, background)   |
+| `bash ~/dotfiles/bin/start-hud.sh stop`       | Stop daemon                          |
+| `bash ~/dotfiles/bin/start-hud.sh status`     | Check if running, show PID and URL   |
+| `bash ~/dotfiles/bin/start-hud.sh restart`    | Stop + start                         |
+| `bash ~/dotfiles/bin/start-hud.sh foreground` | Run in foreground (no daemonization) |
 
-Port defaults to `7823`. Override with `DASHBOARD_PORT=8080 bash ~/dotfiles/bin/start-dashboard.sh`.
+Port defaults to `7823`. Override with `HUD_PORT=8080 bash ~/dotfiles/bin/start-hud.sh`.
 
 ## Architecture
 
 ```
 Event Producers                              Transport priority:
-  │                                            1. Named pipe (dashboard.pipe)
+  │                                            1. Named pipe (hud.pipe)
   ├── ctrlshft-claude                          2. HTTP POST (:7823/api/event)
   │     Parses Claude stdout for Read/         3. JSONL append (events.jsonl)
   │     compliance/context events              
@@ -35,24 +35,24 @@ Event Producers                              Transport priority:
   │     Client context change events         
   ├── shft/afk.sh                            
   │     AFK iteration start/end events       
-  └── write-dashboard-state.sh               
+  └── write-hud-state.sh               
         Sourceable functions for manual use  
         │
         ▼
-dashboard-daemon.js
+hud-daemon.js
   ├── Named pipe listener (real-time, <1ms)
   ├── JSONL file watcher (AFK/Docker fallback)
   ├── SQLite persistence (optional, via better-sqlite3)
   ├── In-memory session + event buffers
   ├── WebSocket server (ws://localhost:7822)
-  └── HTTP server (:7823) — dashboard UI + REST API
+  └── HTTP server (:7823) — HUD UI + REST API
 ```
 
 ## API Endpoints
 
 | Method | Path                        | Description                                            |
 | ------ | --------------------------- | ------------------------------------------------------ |
-| GET    | `/`                         | Serves dashboard UI (`dashboard/index.html`)           |
+| GET    | `/`                         | Serves HUD UI (`hud/index.html`)           |
 | GET    | `/api/state`                | Returns current compliance state as JSON               |
 | GET    | `/api/events/:project`      | Project event history (query: `?limit=200`)            |
 | GET    | `/api/violations/:project`  | Project violations (SQLite only)                       |
@@ -63,7 +63,7 @@ WebSocket: `ws://localhost:7822` — real-time event broadcasts + heartbeat.
 
 ## Event Types
 
-Events emitted by `write-dashboard-state.sh`:
+Events emitted by `write-hud-state.sh`:
 
 | Type                | Source              | Description                                    |
 | ------------------- | ------------------- | ---------------------------------------------- |
@@ -81,11 +81,11 @@ Events emitted by `write-dashboard-state.sh`:
 All runtime data lives in `working/` (gitignored):
 
 - `working/events.jsonl` — append-only event log
-- `working/dashboard.db` — SQLite database (if better-sqlite3 installed)
-- `working/dashboard.pipe` — named pipe for real-time events (Unix only)
-- `working/dashboard-state.json` — legacy aggregated state (fallback)
-- `working/dashboard-daemon.pid` — daemon PID file
-- `working/dashboard-daemon.log` — daemon stdout/stderr log
+- `working/hud.db` — SQLite database (if better-sqlite3 installed)
+- `working/hud.pipe` — named pipe for real-time events (Unix only)
+- `working/hud-state.json` — legacy aggregated state (fallback)
+- `working/hud-daemon.pid` — daemon PID file
+- `working/hud-daemon.log` — daemon stdout/stderr log
 
 ## Optional: SQLite Persistence
 
@@ -101,16 +101,16 @@ Without it, the daemon uses in-memory buffers + JSONL fallback. History is lost 
 
 **macOS (launchd):**
 ```bash
-cp ~/dotfiles/bin/com.ctrlshft.dashboard.plist ~/Library/LaunchAgents/
+cp ~/dotfiles/bin/com.ctrlshft.hud.plist ~/Library/LaunchAgents/
 # Edit the file: replace REPLACE_USERNAME with your username
-launchctl load ~/Library/LaunchAgents/com.ctrlshft.dashboard.plist
+launchctl load ~/Library/LaunchAgents/com.ctrlshft.hud.plist
 ```
 
 **Linux (systemd):**
 ```bash
 mkdir -p ~/.config/systemd/user/
-cp ~/dotfiles/bin/ctrlshft-dashboard.service ~/.config/systemd/user/
-systemctl --user enable --now ctrlshft-dashboard.service
+cp ~/dotfiles/bin/ctrlshft-hud.service ~/.config/systemd/user/
+systemctl --user enable --now ctrlshft-hud.service
 ```
 
 Restarting the daemon clears in-memory state and re-reads from `events.jsonl`.

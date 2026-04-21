@@ -4,15 +4,15 @@
 # Feeds "Read X" and compliance outputs to the HUD daemon.
 # Fully transparent — output is identical to running `claude` directly.
 #
-# Setup (add to ~/.bashrc or ~/.zshrc after sourcing write-dashboard-state.sh):
+# Setup (add to ~/.bashrc or ~/.zshrc after sourcing write-hud-state.sh):
 #   alias claude='~/dotfiles/bin/ctrlshft-claude'
 #
 # Or use directly:
 #   ctrlshft-claude --print "implement the auth feature"
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
-PIPE_PATH="$DOTFILES/working/dashboard.pipe"
-HTTP_PORT="${DASHBOARD_PORT:-7823}"
+PIPE_PATH="$DOTFILES/working/hud.pipe"
+HTTP_PORT="${HUD_PORT:-7823}"
 PROJECT_ID=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
 PROJECT_PATH="${PWD/$HOME/~}"
 CONTEXTS="${ACTIVE_CONTEXTS:-general}"

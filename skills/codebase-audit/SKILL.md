@@ -46,14 +46,15 @@ Report in this exact format, grouped by severity:
 
 - [file:line] vs [file:line] — which convention to pick and why
 
-## Dashboard Events
+## HUD Events
 
 Emit bookend events so the HUD tracks this audit:
 ```bash
+source ~/dotfiles/bin/write-hud-state.sh
 # At start
-echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"codebase-audit: started","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+write_hud_event "info" "codebase-audit: started"
 # At end — report findings count
-echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"codebase-audit: completed — N findings","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+write_hud_event "info" "codebase-audit: completed — N findings"
 ```
 
 ## Rules

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# dashboard-session.sh — SessionStart / Stop hook: emit HUD events.
+# hud-session.sh — SessionStart / Stop hook: emit HUD events.
 #
 # Receives Claude Code hook JSON on stdin containing session lifecycle data.
-# Uses write-dashboard-state.sh for proper JSON escaping and transport.
+# Uses write-hud-state.sh for proper JSON escaping and transport.
 # Zero tool-call cost — fires automatically.
 #
 # Hook events:
@@ -13,8 +13,8 @@ set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 
-# Source the event emitter (provides write_dashboard_event with proper escaping)
-source "$DOTFILES/bin/write-dashboard-state.sh"
+# Source the event emitter (provides write_hud_event with proper escaping)
+source "$DOTFILES/bin/write-hud-state.sh"
 
 # Read hook JSON from stdin
 INPUT=$(cat)
@@ -33,24 +33,24 @@ else
     TRANSCRIPT=""
 fi
 
-# cd to project dir so write_dashboard_event picks up the correct project name
+# cd to project dir so write_hud_event picks up the correct project name
 if [[ -n "$CWD" ]]; then
     cd "$CWD" 2>/dev/null || true
 fi
 
 case "$HOOK_EVENT" in
     SessionStart)
-        write_dashboard_event "info" "Session started (hook) — $SESSION_ID"
+        write_hud_event "info" "Session started (hook) — $SESSION_ID"
         ;;
     Stop)
         if [[ -n "$TRANSCRIPT" ]]; then
-            write_dashboard_event "info" "Session ended (hook) — transcript: $TRANSCRIPT"
+            write_hud_event "info" "Session ended (hook) — transcript: $TRANSCRIPT"
         else
-            write_dashboard_event "info" "Session ended (hook) — $SESSION_ID"
+            write_hud_event "info" "Session ended (hook) — $SESSION_ID"
         fi
         ;;
     *)
-        write_dashboard_event "info" "Hook event: $HOOK_EVENT — $SESSION_ID"
+        write_hud_event "info" "Hook event: $HOOK_EVENT — $SESSION_ID"
         ;;
 esac
 

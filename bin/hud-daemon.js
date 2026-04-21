@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * dashboard-daemon.js — ctrl+shft HUD daemon
+ * hud-daemon.js — ctrl+shft HUD daemon
  *
  * Zero external dependencies in core path.
  * Optional: better-sqlite3 for persistent history (falls back to in-memory + JSONL)
  *
  * Data sources (in priority order):
- *   1. Named pipe  ~/dotfiles/working/dashboard.pipe  — real-time from shells
+ *   1. Named pipe  ~/dotfiles/working/hud.pipe  — real-time from shells
  *   2. JSONL file  ~/dotfiles/working/events.jsonl    — AFK/Docker writes here
- *   3. State file  ~/dotfiles/working/dashboard-state.json — legacy fallback
+ *   3. State file  ~/dotfiles/working/hud-state.json — legacy fallback
  *
  * AFK/Docker note:
  *   afk.sh mounts $CTRL_DIR read-only. working/ is NOT mounted by default.
@@ -17,12 +17,12 @@
  *   HITL (once.sh) runs on host — uses named pipe directly.
  *
  * Usage:
- *   node ~/dotfiles/bin/dashboard-daemon.js
- *   node ~/dotfiles/bin/dashboard-daemon.js --port 7823 --ws-port 7822 --debug
+ *   node ~/dotfiles/bin/hud-daemon.js
+ *   node ~/dotfiles/bin/hud-daemon.js --port 7823 --ws-port 7822 --debug
  *
  * Start/stop:
- *   bash ~/dotfiles/bin/start-dashboard.sh
- *   bash ~/dotfiles/bin/start-dashboard.sh --stop
+ *   bash ~/dotfiles/bin/start-hud.sh
+ *   bash ~/dotfiles/bin/start-hud.sh --stop
  */
 
 'use strict';
@@ -38,13 +38,13 @@ const { execSync } = require('child_process');
 // ── Config ────────────────────────────────────────────────────────────────────
 const DOTFILES    = process.env.DOTFILES || path.join(os.homedir(), 'dotfiles');
 const WORKING     = path.join(DOTFILES, 'working');
-const PIPE_PATH   = path.join(WORKING, 'dashboard.pipe');
+const PIPE_PATH   = path.join(WORKING, 'hud.pipe');
 const JSONL_PATH  = path.join(WORKING, 'events.jsonl');
-const STATE_PATH  = path.join(WORKING, 'dashboard-state.json');
+const STATE_PATH  = path.join(WORKING, 'hud-state.json');
 const LOG_PATH    = path.join(WORKING, 'compliance-log.md');
-const DB_PATH     = path.join(WORKING, 'dashboard.db');
-const LOCK_DIR    = path.join(WORKING, '.dashboard.lock');
-const DISMISSED_PATH = path.join(WORKING, '.dashboard-dismissed.json');
+const DB_PATH     = path.join(WORKING, 'hud.db');
+const LOCK_DIR    = path.join(WORKING, '.hud.lock');
+const DISMISSED_PATH = path.join(WORKING, '.hud-dismissed.json');
 
 const args = process.argv.slice(2);
 const getArg = (flag, def) => {
@@ -241,7 +241,7 @@ function processLine(raw, source) {
 
     let event;
 
-    // JSON format (from write_dashboard_event)
+    // JSON format (from write_hud_event)
     try {
         event = JSON.parse(line);
     } catch {
@@ -558,7 +558,7 @@ function startJsonlWatcher() {
             }
         } catch { }
 
-        // Also watch dashboard-state.json (legacy / write_dashboard_state.sh fallback)
+        // Also watch hud-state.json (legacy / write-hud-state.sh fallback)
         try {
             const stat = fs.statSync(STATE_PATH);
             if (stat.mtimeMs > lastStateMtime) {
@@ -706,7 +706,7 @@ function scanFileInventory() {
 
 // ── HTTP server ───────────────────────────────────────────────────────────────
 function startHttpServer() {
-    const DASHBOARD_HTML = path.join(__dirname, '..', 'dashboard', 'index.html');
+    const HUD_HTML = path.join(__dirname, '..', 'hud', 'index.html');
 
     const server = http.createServer((req, res) => {
         const url = new URL(req.url, `http://localhost:${HTTP_PORT}`);
@@ -721,11 +721,11 @@ function startHttpServer() {
             return;
         }
 
-        // Dashboard HTML
-        if (url.pathname === '/' || url.pathname === '/dashboard') {
+        // HUD HTML
+        if (url.pathname === '/' || url.pathname === '/hud') {
             try {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(fs.readFileSync(DASHBOARD_HTML, 'utf8'));
+                res.end(fs.readFileSync(HUD_HTML, 'utf8'));
             } catch {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(fallbackHtml());
@@ -810,7 +810,7 @@ function startHttpServer() {
             return;
         }
 
-        // DELETE /api/projects/:id — dismiss a project from the dashboard
+        // DELETE /api/projects/:id — dismiss a project from the HUD
         if (req.method === 'DELETE' && url.pathname.startsWith('/api/projects/')) {
             const projectId = decodeURIComponent(url.pathname.split('/')[3]);
             dismissedProjects.add(projectId);
@@ -863,7 +863,7 @@ function fallbackHtml() {
 <style>body{background:#080808;color:#fff;font-family:monospace;padding:4rem}
 h1{color:#e8ff47}p{color:#9f9fa9}code{color:#e8ff47}</style></head><body>
 <h1>ctrl+shft HUD</h1>
-<p>Daemon is running. Place <code>dashboard/index.html</code> in the <code>dashboard/</code> folder for the full HUD.</p>
+<p>Daemon is running. Place <code>hud/index.html</code> in the <code>hud/</code> folder for the full HUD.</p>
 <p>API: <code><a href="/api/state" style="color:#e8ff47">/api/state</a></code></p>
 <p>WebSocket: <code>ws://localhost:${WS_PORT}</code></p>
 <script>
@@ -912,7 +912,7 @@ startHttpServer();
 startWsServer();
 
 log('Ready.');
-log('  Dashboard  →  http://localhost:' + HTTP_PORT);
+log('  HUD  →  http://localhost:' + HTTP_PORT);
 log('  WebSocket  →  ws://localhost:' + WS_PORT);
 log('  Pipe       →  ' + PIPE_PATH);
 log('  JSONL      →  ' + JSONL_PATH);

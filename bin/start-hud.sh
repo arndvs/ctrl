@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# start-dashboard.sh — Start, stop, or check the ctrl+shft HUD daemon.
+# start-hud.sh — Start, stop, or check the ctrl+shft HUD daemon.
 #
 # Usage:
-#   bash ~/dotfiles/bin/start-dashboard.sh           # start in background
-#   bash ~/dotfiles/bin/start-dashboard.sh --stop    # stop running daemon
-#   bash ~/dotfiles/bin/start-dashboard.sh --status  # check status
-#   bash ~/dotfiles/bin/start-dashboard.sh --restart # restart
-#   bash ~/dotfiles/bin/start-dashboard.sh --fg      # foreground (debug mode)
+#   bash ~/dotfiles/bin/start-hud.sh           # start in background
+#   bash ~/dotfiles/bin/start-hud.sh --stop    # stop running daemon
+#   bash ~/dotfiles/bin/start-hud.sh --status  # check status
+#   bash ~/dotfiles/bin/start-hud.sh --restart # restart
+#   bash ~/dotfiles/bin/start-hud.sh --fg      # foreground (debug mode)
 #
 # Follows the same conventions as bootstrap.sh:
 #   - Sources _lib.sh for green/yellow/red
@@ -19,11 +19,11 @@ source "$(dirname "${BASH_SOURCE[0]}")/_lib.sh"
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 WORKING="$DOTFILES/working"
-DAEMON_JS="$DOTFILES/bin/dashboard-daemon.js"
-PID_FILE="$WORKING/dashboard-daemon.pid"
-LOG_FILE="$WORKING/dashboard-daemon.log"
-HTTP_PORT="${DASHBOARD_PORT:-7823}"
-WS_PORT="${DASHBOARD_WS_PORT:-7822}"
+DAEMON_JS="$DOTFILES/bin/hud-daemon.js"
+PID_FILE="$WORKING/hud-daemon.pid"
+LOG_FILE="$WORKING/hud-daemon.log"
+HTTP_PORT="${HUD_PORT:-7823}"
+WS_PORT="${HUD_WS_PORT:-7822}"
 
 mkdir -p "$WORKING"
 
@@ -62,7 +62,7 @@ case "${1:-start}" in
             rm -f "$PID_FILE"
             green "HUD daemon stopped"
         else
-            yellow "Dashboard daemon not running"
+            yellow "HUD daemon not running"
         fi
         exit 0
         ;;
@@ -75,7 +75,7 @@ case "${1:-start}" in
             echo "  Log: $LOG_FILE"
         else
             yellow "HUD daemon not running"
-            echo "  Start with: bash ~/dotfiles/bin/start-dashboard.sh"
+            echo "  Start with: bash ~/dotfiles/bin/start-hud.sh"
         fi
         exit 0
         ;;
@@ -117,7 +117,7 @@ fi
 _node_major=$(node --version 2>/dev/null | sed 's/v//' | cut -d. -f1)
 if [[ "${_node_major:-0}" -lt 18 ]]; then
     yellow "Node.js 18+ recommended (found: $(node --version))"
-    yellow "Dashboard may work but is untested on older versions"
+    yellow "HUD may work but is untested on older versions"
 fi
 
 # SQLite check (optional but recommended)
@@ -137,15 +137,15 @@ nohup node "$DAEMON_JS" \
 echo $! > "$PID_FILE"
 
 if _wait_for_daemon; then
-    green "Dashboard running (PID $(cat "$PID_FILE"))"
+    green "HUD running (PID $(cat "$PID_FILE"))"
     echo ""
-    echo "  Dashboard  →  http://localhost:$HTTP_PORT"
+    echo "  HUD  →  http://localhost:$HTTP_PORT"
     echo "  WebSocket  →  ws://localhost:$WS_PORT"
     echo "  Log        →  $LOG_FILE"
     echo ""
     _open_browser
 else
-    red "Dashboard failed to start"
+    red "HUD failed to start"
     red "Check log: $LOG_FILE"
     cat "$LOG_FILE" | tail -20
     rm -f "$PID_FILE"

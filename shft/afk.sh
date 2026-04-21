@@ -16,7 +16,7 @@ VENV_DIR="$CTRL_DIR/secrets/.venv"
 
 source "$CTRL_DIR/bin/_lib.sh"
 
-# ── Dashboard event helper (inline — works without sourcing write-dashboard-state.sh) ─
+# ── HUD event helper (inline — works without sourcing write-hud-state.sh) ─
 WORKING_DIR="$CTRL_DIR/working"
 mkdir -p "$WORKING_DIR"
 
@@ -25,7 +25,7 @@ _push_afk_event() {
     local _ts _td _pipe _proj _path _ctx
     _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
     _td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
-    _pipe="$WORKING_DIR/dashboard.pipe"
+    _pipe="$WORKING_DIR/hud.pipe"
     _proj=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
     _path="${PWD/$HOME/~}"
     _ctx="${ACTIVE_CONTEXTS:-general}"

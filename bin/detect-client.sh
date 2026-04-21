@@ -107,9 +107,9 @@ if _detect_client_project; then
     export ACTIVE_PROJECT
     _write_active_output "$ACTIVE_CLIENT" "$ACTIVE_PROJECT"
 
-    # Dashboard event — client context change (inline, non-blocking)
+    # HUD event — client context change (inline, non-blocking)
     {
-        _dc_pipe="${DOTFILES}/working/dashboard.pipe"
+        _dc_pipe="${DOTFILES}/working/hud.pipe"
         _dc_ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "")
         _dc_td=$(date +"%H:%M:%S" 2>/dev/null || echo "")
         _dc_msg="Client: ${ACTIVE_CLIENT}"

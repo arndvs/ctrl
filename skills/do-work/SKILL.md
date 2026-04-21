@@ -11,11 +11,12 @@ Pipeline position: `/grill-me` → `/write-a-prd` → `/architect` → `/prd-to-
 
 ## Workflow
 
-### 0. Dashboard event (if daemon running)
+### 0. HUD event (if daemon running)
 
 Emit a session-start event so the HUD tracks this work:
 ```bash
-echo '{"type":"info","project":"'"$(basename "$PWD")"'","projectPath":"'"${PWD/$HOME/~}"'","contexts":"'"${ACTIVE_CONTEXTS:-general}"'","message":"do-work: started — '"$TASK_SUMMARY"'","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","time":"'"$(date +%H:%M:%S)"'"}' >> ~/dotfiles/working/events.jsonl
+source ~/dotfiles/bin/write-hud-state.sh
+write_hud_event "info" "do-work: started — $TASK_SUMMARY"
 ```
 Replace `$TASK_SUMMARY` with a short description. Emit again after each commit (`do-work: committed — <message>`) and at session end (`do-work: completed`).
 

@@ -2365,14 +2365,14 @@
             <h2 class="section-title">See what your<br>agent <em>actually does</em></h2>
 
             <p style="max-width: 56rem; color: var(--text-secondary); font-family: var(--sans); line-height: 1.7;">
-                The HUD is a real-time dashboard that shows which rules loaded, which skills fired, which projects
+                The HUD is a real-time HUD that shows which rules loaded, which skills fired, which projects
                 are being touched, and whether compliance checks pass or fail. It runs locally and updates
                 instantly via WebSocket.
             </p>
 
             <div style="margin: 3rem 0; border: 1px solid var(--border-bright); border-radius: 4px; overflow: hidden;">
                 <img src="assets/hud-screenshot.png"
-                     alt="ctrl+shft HUD — real-time compliance dashboard showing project tabs, loaded rules and skills, session log, and compliance history"
+                     alt="ctrl+shft HUD — real-time HUD showing project tabs, loaded rules and skills, session log, and compliance history"
                      style="width: 100%; display: block;" loading="lazy" />
             </div>
 
@@ -2405,7 +2405,7 @@
 
             <div style="margin-top: 2rem; padding: 1.4rem 2rem; border: 1px solid var(--border); font-size: 1.2rem; color: var(--text-secondary); font-family: var(--sans); line-height: 1.7;">
                 <strong style="color: var(--text); font-family: var(--mono); letter-spacing: 0.08rem;">Start it:</strong>
-                <code style="color: var(--accent);">bash ~/dotfiles/bin/start-dashboard.sh</code> — then visit
+                <code style="color: var(--accent);">bash ~/dotfiles/bin/start-hud.sh</code> — then visit
                 <code style="color: var(--accent);">localhost:7823</code>. Hooks emit events automatically. No configuration required.
             </div>
         </div>
@@ -2647,7 +2647,7 @@
                     <div class="faq-category-tag">Compliance</div>
                     <div class="faq-question">How do I know the agent is actually following the rules, not just loading them?</div>
                     <div class="faq-answer">
-                        <p>"Read X" confirms a rule was loaded into context — not that it was followed. The <code>compliance-audit</code> skill closes the gap: after each task it reviews the diff against every active rule, logs pass/fail/warn to <code>working/compliance-log.md</code>, and the HUD dashboard surfaces compliance rates across sessions in real time.</p>
+                        <p>"Read X" confirms a rule was loaded into context — not that it was followed. The <code>compliance-audit</code> skill closes the gap: after each task it reviews the diff against every active rule, logs pass/fail/warn to <code>working/compliance-log.md</code>, and the HUD surfaces compliance rates across sessions in real time.</p>
                         <p>Run <code>/stress-test</code> for adversarial verification before deploying in a team environment. Current compliance on well-formed tasks: ~85–90%, with known failure modes documented and actively tracked.</p>
                     </div>
                 </div>

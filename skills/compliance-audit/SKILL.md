@@ -156,14 +156,14 @@ Violations: [n] ([severity summary])
 Then push the result to the HUD daemon:
 
 ```bash
-source ~/dotfiles/bin/write-dashboard-state.sh
-update_dashboard_compliance <pass_count> <fail_count> <warn_count>
+source ~/dotfiles/bin/write-hud-state.sh
+update_hud_compliance <pass_count> <fail_count> <warn_count>
 ```
 
 For each violation found, also emit individual events:
 
 ```bash
-write_dashboard_event "fail" "VIOLATION — <rule_file> — <title> — <severity>"
+write_hud_event "fail" "VIOLATION — <rule_file> — <title> — <severity>"
 ```
 
 This log becomes the stress test baseline and the honest answer to "has this been tested."
