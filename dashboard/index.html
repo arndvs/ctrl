@@ -284,6 +284,22 @@
             border: 1px solid var(--border);
         }
 
+        .project-tab-close {
+            margin-left: auto;
+            padding: 0.2rem 0.5rem;
+            font-size: 1rem;
+            color: var(--text-dimmer);
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+            line-height: 1;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s;
+        }
+        .project-tab:hover .project-tab-close { opacity: 1; }
+        .project-tab-close:hover { color: var(--red); background: rgba(255,69,69,0.12); }
+
         /* ── MAIN LAYOUT ── */
         .main {
             display: grid;
@@ -1409,12 +1425,13 @@
             const history = {};
 
             for (const p of projects) {
-                const sessionLoaded = (p.loadedFiles || []).map(f => f.file_name || f.name);
+                const rawProj = (raw.projects || []).find(rp => rp.project === p.id) || {};
+                const sessionLoaded = (rawProj.loadedFiles || []).map(f => f.file_name || f.name);
                 loadedFiles[p.id] = inventory.map(inv => ({
                     name: inv.name,
                     type: inv.type,
                     readAt: sessionLoaded.includes(inv.name)
-                        ? ((p.loadedFiles || []).find(f => (f.file_name || f.name) === inv.name)?.read_at || 'yes')
+                        ? ((rawProj.loadedFiles || []).find(f => (f.file_name || f.name) === inv.name)?.read_at || 'yes')
                         : null,
                     status: sessionLoaded.includes(inv.name) ? 'loaded' : 'available',
                 }));
@@ -1461,11 +1478,19 @@
                     el('span', null, (p.complianceRate || 0) + '%'),
                     p.violations > 0 ? el('span', { style: 'color: var(--red)' }, p.violations + ' issues') : null
                 );
+                const closeBtn = el('span', {
+                    className: 'project-tab-close',
+                    title: 'Dismiss project (reappears if new events arrive)',
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        dismissProject(p.id);
+                    },
+                }, '\u00d7');
                 const btn = el('button', {
                     className: 'project-tab' + (p.id === activeId ? ' active' : ''),
                     dataset: { project: p.id },
                     onClick: () => { currentProject = p.id; selectedHistoryIndex = null; renderAll(); },
-                }, dot, ' ' + str(p.name), stats);
+                }, dot, ' ' + str(p.name), stats, closeBtn);
                 bar.appendChild(btn);
             }
         }
@@ -1717,6 +1742,21 @@
 
                 container.appendChild(card);
             }
+        }
+
+        // ── Dismiss project ───────────────────────────────────────────────────────
+        async function dismissProject(projectId) {
+            try {
+                await fetch(API_BASE + '/api/projects/' + encodeURIComponent(projectId), { method: 'DELETE' });
+            } catch (e) {
+                console.warn('Dismiss failed:', e);
+            }
+            // Remove from local state immediately for snappy UI
+            state.projects = state.projects.filter(p => p.id !== projectId);
+            if (currentProject === projectId) {
+                currentProject = state.projects[0]?.id || null;
+            }
+            renderAll();
         }
 
         // ── Main render ───────────────────────────────────────────────────────────────

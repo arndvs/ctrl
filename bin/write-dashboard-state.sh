@@ -62,7 +62,9 @@ write_dashboard_event() {
         "$_type" "$_proj" "$_path" "$_ctx" "$_safe_msg" "$_ts" "$_td")
 
     # Transport 1 — named pipe (background, non-blocking)
-    if [[ -p "$_PIPE" ]]; then
+    # Skip on Windows/MSYS — mkfifo creates POSIX pipes that have no reader,
+    # silently swallowing events. Only use if a real reader exists.
+    if [[ -p "$_PIPE" && "$(uname -o 2>/dev/null)" != "Msys" ]]; then
         ( printf '%s\n' "$_payload" > "$_PIPE" ) 2>/dev/null &
         return 0
     fi
@@ -126,10 +128,23 @@ write_compliance_event() {
 }
 export -f write_compliance_event 2>/dev/null || true
 
+# ── emit_loaded_files ──────────────────────────────────────────────────────────
+# Batch-emit read events for a list of loaded files.
+# Usage: emit_loaded_files "global.instructions.md" "skills/do-work/SKILL.md" ...
+emit_loaded_files() {
+    for f in "$@"; do
+        write_dashboard_event "read" "Read $f"
+    done
+}
+export -f emit_loaded_files 2>/dev/null || true
+
 # CLI mode — allow direct invocation for testing
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     if [[ "${1:-}" == "compliance" ]]; then
         update_dashboard_compliance "${2:-0}" "${3:-0}" "${4:-0}"
+    elif [[ "${1:-}" == "reads" ]]; then
+        shift
+        emit_loaded_files "$@"
     else
         write_dashboard_event "${1:-info}" "${2:-}"
     fi

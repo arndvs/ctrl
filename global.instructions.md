@@ -70,16 +70,25 @@ Read the relevant SKILL.md in full, find the most suitable place to integrate th
 </thinking>
 
 <dashboard-events>
-When the compliance dashboard daemon is running (check: `curl -sf http://localhost:7823/api/state > /dev/null 2>&1`), emit bookend events at session milestones. This gives the dashboard visibility into VS Code Copilot sessions that the CLI wrapper (`ctrlshft-claude`) can't observe.
+When the compliance dashboard daemon is running (check: `curl -sf http://localhost:7823/api/state > /dev/null 2>&1`), emit events to give the dashboard visibility into VS Code Copilot sessions that the CLI wrapper can't observe.
 
-**When to emit:** At skill start, after each milestone (slice done, commit made, audit complete), and at session end. Do NOT emit per-file or per-tool-call — only milestones.
+**When to emit:**
+1. **On skill/instruction/rule load** — After reading a SKILL.md, instructions file, or rule file, emit a `read` event. Batch them into a single terminal call:
+   ```bash
+   bash ~/dotfiles/bin/write-dashboard-state.sh reads "global.instructions.md" "skills/codebase-audit/SKILL.md" "instructions/nextjs.instructions.md"
+   ```
+2. **On milestones** — At slice completion, commit, or audit finish, emit an `info` event:
+   ```bash
+   bash ~/dotfiles/bin/write-dashboard-state.sh info "Slice 3 committed"
+   ```
+3. **On compliance results** — After compliance audit, emit pass/fail/warn:
+   ```bash
+   bash ~/dotfiles/bin/write-dashboard-state.sh compliance <pass> <fail> <warn>
+   ```
 
-**How:** Run a single terminal command to append to the JSONL file (no curl, no pipe — JSONL is always available):
-```bash
-echo '{"type":"TYPE","project":"PROJECT","projectPath":"PATH","contexts":"CONTEXTS","message":"MESSAGE","timestamp":"TS","time":"TD"}' >> ~/dotfiles/working/events.jsonl
-```
+**How:** Always use `write-dashboard-state.sh` CLI — it handles transport fallback (pipe → HTTP → JSONL).
 
-Event types: `info` (start/end/milestone), `read` (skill/rule loaded), `pass`/`fail`/`warn` (compliance results).
+Event types: `info` (milestone), `read` (skill/rule/instruction loaded), `pass`/`fail`/`warn` (compliance), `context` (context change).
 
-Keep it to 3-5 events per session. This is observability, not logging.
+Emit reads once after loading all files for the session. Keep milestone events to 3-5 per session. This is observability, not logging.
 </dashboard-events>

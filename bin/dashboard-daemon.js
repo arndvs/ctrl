@@ -44,6 +44,7 @@ const STATE_PATH  = path.join(WORKING, 'dashboard-state.json');
 const LOG_PATH    = path.join(WORKING, 'compliance-log.md');
 const DB_PATH     = path.join(WORKING, 'dashboard.db');
 const LOCK_DIR    = path.join(WORKING, '.dashboard.lock');
+const DISMISSED_PATH = path.join(WORKING, '.dashboard-dismissed.json');
 
 const args = process.argv.slice(2);
 const getArg = (flag, def) => {
@@ -141,6 +142,21 @@ const wsClients    = new Set();
 const startedAt      = new Date().toISOString();
 let totalEventCount  = 0;
 const complianceData = new Map(); // project → { latestRate, violations, history }
+const loadedFilesMap = new Map(); // session_id → [{file_name, file_type, read_at}]
+const violationsMap  = new Map(); // project_id → [{session_id, timestamp, rule_file, severity, title, body}]
+
+// Dismissed projects — persisted to disk, un-dismissed on new events
+const dismissedProjects = new Set();
+function loadDismissed() {
+    try {
+        const data = JSON.parse(fs.readFileSync(DISMISSED_PATH, 'utf8'));
+        if (Array.isArray(data)) data.forEach(id => dismissedProjects.add(id));
+    } catch { }
+}
+function saveDismissed() {
+    try { fs.writeFileSync(DISMISSED_PATH, JSON.stringify([...dismissedProjects]), 'utf8'); }
+    catch (e) { dbg('Save dismissed:', e.message); }
+}
 
 // ── IDE detection ─────────────────────────────────────────────────────────────
 // Called once per session creation, not on every event
@@ -189,6 +205,13 @@ function getOrCreateSession(projectId, projectPath, contexts, source) {
 
     sessions.set(projectId, session);
     eventBuffers.set(projectId, []);
+
+    // Un-dismiss if new events arrive for a previously dismissed project
+    if (dismissedProjects.has(projectId)) {
+        dismissedProjects.delete(projectId);
+        saveDismissed();
+        dbg('Un-dismissed project:', projectId);
+    }
 
     if (db) {
         try {
@@ -293,11 +316,16 @@ function processLine(raw, source) {
 }
 
 function handleRead(session, event) {
-    const filename = event.message.replace(/^Read\s+/, '').trim();
+    let filename = event.message.replace(/^Read\s+/, '').trim();
     let fileType = 'instruction';
     if (filename.includes('skills/')) fileType = 'skill';
     if (filename.includes('rules/'))  fileType = 'rule';
     if (filename.includes('agents/')) fileType = 'agent';
+
+    // Normalize to inventory-canonical names (skills/foo not skills/foo/SKILL.md)
+    filename = filename.replace(/\/SKILL\.md$/, '');
+
+    const readAt = event.time || new Date().toLocaleTimeString('en-US', { hour12: false });
 
     if (db) {
         try {
@@ -305,9 +333,15 @@ function handleRead(session, event) {
                 INSERT OR IGNORE INTO loaded_files
                 (session_id, project_id, file_name, file_type, read_at)
                 VALUES (?, ?, ?, ?, ?)
-            `).run(session.id, session.project_id, filename, fileType,
-                   new Date().toLocaleTimeString('en-US', { hour12: false }));
+            `).run(session.id, session.project_id, filename, fileType, readAt);
         } catch (e) { dbg('Loaded file:', e.message); }
+    }
+
+    // In-memory fallback (always runs so getLoadedFiles works without SQLite)
+    const arr = loadedFilesMap.get(session.id) || [];
+    if (!arr.some(f => f.file_name === filename)) {
+        arr.push({ session_id: session.id, project_id: session.project_id, file_name: filename, file_type: fileType, read_at: readAt });
+        loadedFilesMap.set(session.id, arr);
     }
 }
 
@@ -321,16 +355,24 @@ function handleViolation(session, event) {
     const title    = parts[1] || event.message;
     const severity = parts[2] || 'medium';
 
+    const ts = new Date().toISOString();
+
     if (db) {
         try {
             db.prepare(`
                 INSERT INTO violations
                 (session_id, project_id, timestamp, rule_file, severity, title, body)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            `).run(session.id, session.project_id, new Date().toISOString(),
+            `).run(session.id, session.project_id, ts,
                    ruleFile, severity, title, event.message);
         } catch (e) { dbg('Violation insert:', e.message); }
     }
+
+    // In-memory fallback
+    const varr = violationsMap.get(session.project_id) || [];
+    varr.push({ session_id: session.id, project_id: session.project_id, timestamp: ts, rule_file: ruleFile, severity, title, body: event.message });
+    if (varr.length > 100) varr.shift();
+    violationsMap.set(session.project_id, varr);
 }
 
 function handleComplianceUpdate(session, event) {
@@ -421,7 +463,8 @@ function getLoadedFiles(sessionId) {
                      .all(sessionId);
         } catch { }
     }
-    return [];
+    // In-memory fallback
+    return loadedFilesMap.get(sessionId) || [];
 }
 
 function getAllProjectsPublic() {
@@ -640,8 +683,15 @@ function startHttpServer() {
     const server = http.createServer((req, res) => {
         const url = new URL(req.url, `http://localhost:${HTTP_PORT}`);
         res.setHeader('Access-Control-Allow-Origin', 'http://localhost:' + HTTP_PORT);
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        // CORS preflight
+        if (req.method === 'OPTIONS') {
+            res.writeHead(204);
+            res.end();
+            return;
+        }
 
         // Dashboard HTML
         if (url.pathname === '/' || url.pathname === '/dashboard') {
@@ -662,6 +712,7 @@ function startHttpServer() {
             // Backward-compatible project list for current UI
             const projectsArray = [];
             sessions.forEach((s, projectId) => {
+                if (dismissedProjects.has(projectId)) return;
                 const buf = eventBuffers.get(projectId) || [];
                 const last = buf[buf.length - 1];
                 projectsArray.push({
@@ -718,7 +769,7 @@ function startHttpServer() {
             const projectId = decodeURIComponent(url.pathname.split('/')[3]);
             const violations = db
                 ? db.prepare('SELECT * FROM violations WHERE project_id=? ORDER BY id DESC LIMIT 100').all(projectId)
-                : [];
+                : (violationsMap.get(projectId) || []).slice(-100).reverse();
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(violations));
             return;
@@ -728,6 +779,17 @@ function startHttpServer() {
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             try { res.end(fs.readFileSync(LOG_PATH, 'utf8')); }
             catch { res.end('No compliance log yet.\nRun /compliance-audit after a task.'); }
+            return;
+        }
+
+        // DELETE /api/projects/:id — dismiss a project from the dashboard
+        if (req.method === 'DELETE' && url.pathname.startsWith('/api/projects/')) {
+            const projectId = decodeURIComponent(url.pathname.split('/')[3]);
+            dismissedProjects.add(projectId);
+            saveDismissed();
+            log('Dismissed project:', projectId);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true, dismissed: projectId }));
             return;
         }
 
@@ -804,6 +866,7 @@ log('ctrl+shft compliance daemon starting');
 log('Dotfiles:', DOTFILES);
 
 initDb();
+loadDismissed();
 scanFileInventory();
 startPipeListener();
 startJsonlWatcher();
