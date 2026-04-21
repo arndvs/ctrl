@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ctrl+shft — HUD</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ff47' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19h8'/%3E%3Cpath d='m4 17 6-6-6-6'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8ff47' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19h8'/%3E%3Cpath d='m4 17 6-6-6-6'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
         href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
@@ -212,8 +213,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         .last-updated {
@@ -266,9 +274,17 @@
             border-radius: 50%;
         }
 
-        .project-tab-dot.healthy { background: var(--green); }
-        .project-tab-dot.warning { background: var(--yellow); }
-        .project-tab-dot.error { background: var(--red); }
+        .project-tab-dot.healthy {
+            background: var(--green);
+        }
+
+        .project-tab-dot.warning {
+            background: var(--yellow);
+        }
+
+        .project-tab-dot.error {
+            background: var(--red);
+        }
 
         .project-tab-stats {
             display: flex;
@@ -297,8 +313,15 @@
             opacity: 0;
             transition: opacity 0.15s, color 0.15s;
         }
-        .project-tab:hover .project-tab-close { opacity: 1; }
-        .project-tab-close:hover { color: var(--red); background: rgba(255,69,69,0.12); }
+
+        .project-tab:hover .project-tab-close {
+            opacity: 1;
+        }
+
+        .project-tab-close:hover {
+            color: var(--red);
+            background: rgba(255, 69, 69, 0.12);
+        }
 
         /* ── MAIN LAYOUT ── */
         .main {
@@ -447,12 +470,40 @@
             flex-shrink: 0;
         }
 
-        .status-badge.pass { color: var(--green); border-color: var(--green); background: var(--green-dim); }
-        .status-badge.fail { color: var(--red); border-color: var(--red); background: var(--red-dim); }
-        .status-badge.warn { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
-        .status-badge.loaded { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
-        .status-badge.available { color: var(--text-dimmer); border-color: var(--border-bright); background: none; }
-        .status-badge.idle { color: var(--text-dimmer); border-color: var(--border-bright); }
+        .status-badge.pass {
+            color: var(--green);
+            border-color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .status-badge.fail {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .status-badge.warn {
+            color: var(--yellow);
+            border-color: var(--yellow);
+            background: var(--yellow-dim);
+        }
+
+        .status-badge.loaded {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .status-badge.available {
+            color: var(--text-dimmer);
+            border-color: var(--border-bright);
+            background: none;
+        }
+
+        .status-badge.idle {
+            color: var(--text-dimmer);
+            border-color: var(--border-bright);
+        }
 
         /* ── CONTENT PANEL ── */
         .content {
@@ -500,9 +551,17 @@
             gap: 0.3rem;
         }
 
-        .stat-trend.up { color: var(--green); }
-        .stat-trend.down { color: var(--red); }
-        .stat-trend.flat { color: var(--text-dimmer); }
+        .stat-trend.up {
+            color: var(--green);
+        }
+
+        .stat-trend.down {
+            color: var(--red);
+        }
+
+        .stat-trend.flat {
+            color: var(--text-dimmer);
+        }
 
         .stat-value-row {
             display: flex;
@@ -517,10 +576,21 @@
             letter-spacing: -0.02em;
         }
 
-        .stat-value.green { color: var(--green); }
-        .stat-value.red { color: var(--red); }
-        .stat-value.yellow { color: var(--yellow); }
-        .stat-value.accent { color: var(--accent); }
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.red {
+            color: var(--red);
+        }
+
+        .stat-value.yellow {
+            color: var(--yellow);
+        }
+
+        .stat-value.accent {
+            color: var(--accent);
+        }
 
         .stat-sub {
             font-size: 1rem;
@@ -701,12 +771,29 @@
             background: var(--surface-2);
         }
 
-        .log-entry.read { border-left-color: var(--accent); }
-        .log-entry.pass { border-left-color: var(--green); }
-        .log-entry.fail { border-left-color: var(--red); }
-        .log-entry.warn { border-left-color: var(--yellow); }
-        .log-entry.info { border-left-color: var(--blue); }
-        .log-entry.context { border-left-color: var(--text-dimmer); }
+        .log-entry.read {
+            border-left-color: var(--accent);
+        }
+
+        .log-entry.pass {
+            border-left-color: var(--green);
+        }
+
+        .log-entry.fail {
+            border-left-color: var(--red);
+        }
+
+        .log-entry.warn {
+            border-left-color: var(--yellow);
+        }
+
+        .log-entry.info {
+            border-left-color: var(--blue);
+        }
+
+        .log-entry.context {
+            border-left-color: var(--text-dimmer);
+        }
 
         .log-time {
             color: var(--text-dimmer);
@@ -719,22 +806,50 @@
             text-transform: uppercase;
         }
 
-        .log-type.read { color: var(--accent); }
-        .log-type.pass { color: var(--green); }
-        .log-type.fail { color: var(--red); }
-        .log-type.warn { color: var(--yellow); }
-        .log-type.info { color: var(--blue); }
-        .log-type.context { color: var(--text-dimmer); }
+        .log-type.read {
+            color: var(--accent);
+        }
+
+        .log-type.pass {
+            color: var(--green);
+        }
+
+        .log-type.fail {
+            color: var(--red);
+        }
+
+        .log-type.warn {
+            color: var(--yellow);
+        }
+
+        .log-type.info {
+            color: var(--blue);
+        }
+
+        .log-type.context {
+            color: var(--text-dimmer);
+        }
 
         .log-message {
             color: var(--text-secondary);
             line-height: 1.5;
         }
 
-        .log-message .highlight { color: var(--text); }
-        .log-message .path { color: var(--accent); }
-        .log-message .rule { color: var(--yellow); }
-        .log-message .violation { color: var(--red); }
+        .log-message .highlight {
+            color: var(--text);
+        }
+
+        .log-message .path {
+            color: var(--accent);
+        }
+
+        .log-message .rule {
+            color: var(--yellow);
+        }
+
+        .log-message .violation {
+            color: var(--red);
+        }
 
         .log-details {
             grid-column: 1 / -1;
@@ -781,9 +896,17 @@
             border-radius: 2px;
         }
 
-        .compliance-legend-dot.high { background: var(--green); }
-        .compliance-legend-dot.medium { background: var(--yellow); }
-        .compliance-legend-dot.low { background: var(--red); }
+        .compliance-legend-dot.high {
+            background: var(--green);
+        }
+
+        .compliance-legend-dot.medium {
+            background: var(--yellow);
+        }
+
+        .compliance-legend-dot.low {
+            background: var(--red);
+        }
 
         .compliance-chart {
             display: flex;
@@ -840,9 +963,17 @@
             opacity: 1;
         }
 
-        .compliance-bar.high { background: var(--green); }
-        .compliance-bar.medium { background: var(--yellow); }
-        .compliance-bar.low { background: var(--red); }
+        .compliance-bar.high {
+            background: var(--green);
+        }
+
+        .compliance-bar.medium {
+            background: var(--yellow);
+        }
+
+        .compliance-bar.low {
+            background: var(--red);
+        }
 
         .compliance-selected-info {
             margin-top: 1.2rem;
@@ -920,10 +1051,29 @@
             flex-shrink: 0;
         }
 
-        .violation-severity.critical { color: var(--red); border-color: var(--red); background: var(--red-dim); }
-        .violation-severity.high { color: var(--red); border-color: var(--red); background: var(--red-dim); opacity: 0.85; }
-        .violation-severity.medium { color: var(--yellow); border-color: var(--yellow); background: var(--yellow-dim); }
-        .violation-severity.low { color: var(--text-dim); border-color: var(--border-bright); }
+        .violation-severity.critical {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .violation-severity.high {
+            color: var(--red);
+            border-color: var(--red);
+            background: var(--red-dim);
+            opacity: 0.85;
+        }
+
+        .violation-severity.medium {
+            color: var(--yellow);
+            border-color: var(--yellow);
+            background: var(--yellow-dim);
+        }
+
+        .violation-severity.low {
+            color: var(--text-dim);
+            border-color: var(--border-bright);
+        }
 
         .violation-body {
             padding: 1rem 1.4rem;
@@ -1029,14 +1179,32 @@
             max-width: 36rem;
         }
 
-        .toast.success { border-left: 3px solid var(--green); }
-        .toast.warning { border-left: 3px solid var(--yellow); }
-        .toast.error { border-left: 3px solid var(--red); }
-        .toast.info { border-left: 3px solid var(--blue); }
+        .toast.success {
+            border-left: 3px solid var(--green);
+        }
+
+        .toast.warning {
+            border-left: 3px solid var(--yellow);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--red);
+        }
+
+        .toast.info {
+            border-left: 3px solid var(--blue);
+        }
 
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         /* ── SCROLLBAR ── */
@@ -1340,15 +1508,15 @@
             if (h.project && state && state.projects.some(p => p.id === h.project)) {
                 currentProject = h.project;
             }
-            if (['all','context','read','pass','warn','fail'].includes(h.filter)) {
+            if (['all', 'context', 'read', 'pass', 'warn', 'fail'].includes(h.filter)) {
                 logFilter = h.filter;
-                document.querySelectorAll('.panel-tab[data-filter]').forEach(function(t) {
+                document.querySelectorAll('.panel-tab[data-filter]').forEach(function (t) {
                     t.classList.toggle('active', t.dataset.filter === logFilter);
                 });
             }
         }
 
-        window.addEventListener('popstate', function() {
+        window.addEventListener('popstate', function () {
             restoreFromHash();
             selectedHistoryIndex = null;
             renderAll();
@@ -1382,7 +1550,7 @@
             const container = document.getElementById('toast-container');
             const toast = el('div', { className: 'toast ' + type }, message);
             container.appendChild(toast);
-            setTimeout(function() { toast.remove(); }, 4000);
+            setTimeout(function () { toast.remove(); }, 4000);
         }
 
         function toggleSection(sectionId) {
@@ -1401,7 +1569,7 @@
             var min = Math.min.apply(null, data);
             var range = max - min || 1;
 
-            var points = data.map(function(v, i) {
+            var points = data.map(function (v, i) {
                 var x = (i / (data.length - 1)) * width;
                 var y = height - ((v - min) / range) * height;
                 return x + ',' + y;
@@ -1684,9 +1852,11 @@
             }
 
             for (const e of filtered) {
-                const entry = el('div', { className: 'log-entry ' + str(e.type), onClick: function(ev) {
-                    ev.currentTarget.classList.toggle('expanded');
-                }},
+                const entry = el('div', {
+                    className: 'log-entry ' + str(e.type), onClick: function (ev) {
+                        ev.currentTarget.classList.toggle('expanded');
+                    }
+                },
                     el('span', { className: 'log-time' }, str(e.time)),
                     el('span', { className: 'log-type ' + str(e.type) }, str(e.type)),
                     el('span', { className: 'log-message' }, str(e.message)));
@@ -1695,8 +1865,8 @@
                 if (e.type === 'read' || e.type === 'fail' || e.type === 'warn') {
                     entry.appendChild(el('div', { className: 'log-details' },
                         e.type === 'read' ? 'File loaded into context for compliance checking'
-                        : e.type === 'fail' ? 'Compliance check failed — review violation details below'
-                        : 'Warning detected — may need attention'));
+                            : e.type === 'fail' ? 'Compliance check failed — review violation details below'
+                                : 'Warning detected — may need attention'));
                 }
 
                 container.appendChild(entry);
@@ -1725,8 +1895,8 @@
                 const bar = el('div', {
                     className: 'compliance-bar ' + cls + (selectedHistoryIndex === i ? ' selected' : ''),
                     style: 'height:' + height + '%',
-                    onClick: (function(idx, v, lbl) {
-                        return function() { selectHistoryBar(idx, v, lbl); };
+                    onClick: (function (idx, v, lbl) {
+                        return function () { selectHistoryBar(idx, v, lbl); };
                     })(i, val, label),
                 });
 
@@ -1762,9 +1932,11 @@
             }
 
             for (const v of violations) {
-                const card = el('div', { className: 'violation-card', onClick: function(e) {
-                    e.currentTarget.classList.toggle('expanded');
-                }});
+                const card = el('div', {
+                    className: 'violation-card', onClick: function (e) {
+                        e.currentTarget.classList.toggle('expanded');
+                    }
+                });
 
                 card.appendChild(el('div', { className: 'violation-header' },
                     el('div', { className: 'violation-header-left' },
@@ -1837,18 +2009,18 @@
         }
 
         // ── Event Listeners ──────────────────────────────────────────────────────────
-        document.getElementById('sidebar-filter').addEventListener('input', function() {
+        document.getElementById('sidebar-filter').addEventListener('input', function () {
             renderSidebar(currentProject);
         });
 
-        document.getElementById('global-search').addEventListener('keydown', function(e) {
+        document.getElementById('global-search').addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 e.target.value = '';
                 e.target.blur();
             }
         });
 
-        document.getElementById('global-search').addEventListener('input', function(e) {
+        document.getElementById('global-search').addEventListener('input', function (e) {
             var q = e.target.value.toLowerCase();
             if (!q) { renderAll(); return; }
             // Filter sidebar
@@ -1856,14 +2028,14 @@
             renderSidebar(currentProject);
             // Filter log
             var logEntries = document.querySelectorAll('.log-entry');
-            logEntries.forEach(function(entry) {
+            logEntries.forEach(function (entry) {
                 var msg = entry.querySelector('.log-message');
                 var match = msg && msg.textContent.toLowerCase().includes(q);
                 entry.style.display = match ? '' : 'none';
             });
         });
 
-        document.getElementById('refresh-btn').addEventListener('click', async function() {
+        document.getElementById('refresh-btn').addEventListener('click', async function () {
             try {
                 state = await loadHudState();
                 if (!currentProject && state.projects.length) {
@@ -1877,9 +2049,9 @@
         });
 
         // Log filter tabs
-        document.querySelectorAll('.panel-tab[data-filter]').forEach(function(tab) {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.panel-tab[data-filter]').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.panel-tab[data-filter]').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                document.querySelectorAll('.panel-tab[data-filter]').forEach(function (t) { t.classList.remove('active'); });
                 tab.classList.add('active');
                 logFilter = tab.dataset.filter;
                 writeHash();
@@ -1888,7 +2060,7 @@
         });
 
         // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.target.tagName === 'INPUT') return;
 
             if (e.key === '/') {
@@ -1897,7 +2069,7 @@
             } else if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
                 document.getElementById('refresh-btn').click();
             } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && state && state.projects.length) {
-                var idx = state.projects.findIndex(function(p) { return p.id === currentProject; });
+                var idx = state.projects.findIndex(function (p) { return p.id === currentProject; });
                 var newIdx = e.key === 'ArrowLeft'
                     ? (idx - 1 + state.projects.length) % state.projects.length
                     : (idx + 1) % state.projects.length;
