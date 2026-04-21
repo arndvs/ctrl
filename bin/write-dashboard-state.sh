@@ -107,3 +107,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
         write_dashboard_event "${1:-info}" "${2:-}"
     fi
 fi
+
+# Export for subshell use when sourced from .bashrc/.zshrc
+export -f write_dashboard_event    2>/dev/null || true
+export -f write_compliance_event   2>/dev/null || true

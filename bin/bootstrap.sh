@@ -334,6 +334,9 @@ _SHELL_SNIPPET=$(cat << 'SHELLEOF'
 # ── dotfiles/load-secrets ──
 [[ -f ~/dotfiles/bin/load-secrets.sh ]] && source ~/dotfiles/bin/load-secrets.sh
 
+# ── dotfiles/dashboard ──
+[[ -f ~/dotfiles/bin/write-dashboard-state.sh ]] && source ~/dotfiles/bin/write-dashboard-state.sh
+
 # ── dotfiles/context-detection ──
 _load_context() {
     [[ -f ~/dotfiles/bin/detect-context.sh ]] \
