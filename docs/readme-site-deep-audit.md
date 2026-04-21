@@ -14,17 +14,18 @@ The docs are directionally strong, but there are concrete parity drifts after Sl
 
 ### High
 
-1. **Broken link in README roadmap section**
-   - Evidence: `README.md:696` links to `working/observability-benchmarking-plan.md`.
-   - Validation: file does not exist and is not tracked.
-   - Impact: external users hit 404 / dead reference from core roadmap content.
+1. **Broken link in README roadmap section (pre-fix/historical evidence)**
+   - Evidence: at audit time, `README.md:696` linked to `working/observability-benchmarking-plan.md`.
+   - Validation: that path did not exist and was not tracked at the time of audit.
+   - Impact: before this PR's README fix, external users could hit a 404 / dead reference from core roadmap content.
 
-2. **Prerequisite mismatch between README and site**
-   - Evidence:
-     - `README.md:791` references `srt` (`@anthropic-ai/sandbox-runtime`).
-     - `site/index.html:2200` claims `sbx` is required.
-     - Runtime scripts currently use `srt` (`shft/afk.sh`, `bin/validate-env.sh`).
-   - Impact: installation confusion and support churn.
+2. **Prerequisite mismatch between README and site (pre-fix/historical evidence)**
+   - Evidence: at audit time:
+     - `README.md:791` referenced `srt` (`@anthropic-ai/sandbox-runtime`).
+     - `site/index.html:2200` claimed `sbx` was required.
+     - Runtime scripts used `srt` (`shft/afk.sh`, `bin/validate-env.sh`).
+   - Impact: before this PR's site fix, installation docs were contradictory.
+   - Resolution: site updated from `sbx` to `srt` in this PR.
 
 ### Medium
 
