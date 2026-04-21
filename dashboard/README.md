@@ -117,5 +117,6 @@ Restarting the daemon clears in-memory state and re-reads from `events.jsonl`.
 
 ## Requirements
 
-- **Node.js** — the daemon is a zero-dependency Node.js HTTP server
-- No npm install needed — no `node_modules`, no `package.json`
+- **Node.js** — the daemon's core path has zero external dependencies
+- `package.json` exists at repo root for optional `better-sqlite3` — run `npm install` for persistent history
+- Without `better-sqlite3`, the daemon uses in-memory buffers + JSONL fallback (no npm install needed)

@@ -13,7 +13,7 @@ Observability is **partially shipped** — compliance monitoring is live, teleme
 - ✅ `bin/write-dashboard-state.sh` — event emitter (pipe → HTTP → JSONL fallback)
 - ✅ `bin/dashboard-daemon.js` — zero-dependency Node.js compliance dashboard server
 - ✅ `bin/start-dashboard.sh` — daemon lifecycle manager (start/stop/status/restart/foreground)
-- ✅ `dashboard/index.html` — real-time compliance UI (dark theme, 5s polling)
+- ✅ `dashboard/index.html` — real-time compliance UI (dark theme, WebSocket + adaptive polling fallback, project tabs, file inventory sidebar)
 - ✅ `skills/compliance-audit/SKILL.md` — auto-invoked rule compliance check
 - ✅ `skills/stress-test/SKILL.md` — adversarial rule boundary validation
 

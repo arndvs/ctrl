@@ -411,6 +411,7 @@ docker sandbox run claude .
 ├── CHANGELOG.md                     ← release history
 ├── CONTRIBUTING.md                  ← contribution guide
 ├── global.instructions.md           ← universal rules, always loaded
+├── package.json                     ← optional deps (better-sqlite3 for dashboard persistence)
 ├── settings.json                    ← managed VS Code settings
 ├── .env.agent.example               ← template for non-sensitive config
 ├── .env.citation.example            ← template for citation skill config
@@ -506,6 +507,7 @@ docker sandbox run claude .
 │   ├── start-dashboard.sh           daemon lifecycle (start/stop/status/restart)
 │   └── write-dashboard-state.sh     non-blocking compliance event emitter
 ├── dashboard/                       ← compliance dashboard UI
+│   ├── README.md                    dashboard architecture + API reference
 │   └── index.html
 ├── site/                            ← landing page (ctrlshft.dev)
 │   ├── index.html

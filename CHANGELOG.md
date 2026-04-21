@@ -8,7 +8,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-_Nothing yet._
+Slice 7.1: dashboard event producers, daemon upgrade, compliance polish.
+
+### Added
+- `bin/ctrlshft-claude` — event-producing wrapper that parses Claude stdout for compliance/context events
+- WebSocket server (ws://localhost:7822) for real-time dashboard event broadcasts
+- SQLite persistence via optional `better-sqlite3` (falls back to in-memory + JSONL)
+- Server-side file inventory scan (skills, agents, rules, instructions, hooks)
+- `package.json` + `package-lock.json` for optional `better-sqlite3` dependency
+- `cspell.json` — initial cSpell configuration
+
+### Changed
+- `bin/dashboard-daemon.js` upgraded from HTTP polling to WebSocket + adaptive polling fallback
+- `dashboard/index.html` upgraded with project tabs, file inventory sidebar, session management
+- `bin/detect-context.sh` now emits context events to dashboard pipeline on every `cd()`
+- `bin/write-dashboard-state.sh` architecture diagram and API table corrected
+
+### Fixed
+- `ctrlshft-claude` wrapper: JSONL fallback when pipe unavailable, EXIT trap for cleanup, exit code preservation
+- 5 event-producer bugs from 7.1a audit (timestamp format, payload shape, error handling)
+- Dashboard: renamed `esc`→`str` helper, removed dead CSS class, replaced `setInterval` with `setTimeout`
 
 ---
 
@@ -17,7 +36,7 @@ _Nothing yet._
 Slice 7: compliance dashboard UI + compliance skills (#48).
 
 ### Added
-- `dashboard/index.html` — compliance dashboard UI (single-file, dark theme, 5s polling)
+- `dashboard/index.html` — compliance dashboard UI (single-file, dark theme, WebSocket + adaptive polling)
 - `skills/compliance-audit/SKILL.md` — auto-invoked rule compliance check after do-work/tdd/debugging
 - `skills/stress-test/SKILL.md` — adversarial 19-scenario protocol for rule boundary validation
 
