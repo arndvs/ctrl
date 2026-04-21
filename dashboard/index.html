@@ -939,8 +939,8 @@
         const API_BASE = window.location.origin;
 
         // ── Helpers ──────────────────────────────────────────────────────────────────
-        function esc(str) {
-            return String(str || '');
+        function str(val) {
+            return String(val || '');
         }
 
         function el(tag, attrs, ...children) {
@@ -1051,18 +1051,18 @@
             bar.textContent = '';
 
             if (!projects.length) {
-                bar.appendChild(el('span', { className: 'text-dimmer', style: 'padding:0.8rem;font-size:1.1rem;' },
+                bar.appendChild(el('span', { style: 'padding:0.8rem;font-size:1.1rem;color:var(--text-dim);' },
                     'No projects yet — run a task to populate'));
                 return;
             }
 
             for (const p of projects) {
-                const dot = el('span', { className: 'project-tab-dot ' + esc(p.health) });
+                const dot = el('span', { className: 'project-tab-dot ' + str(p.health) });
                 const btn = el('button', {
                     className: 'project-tab' + (p.id === activeId ? ' active' : ''),
                     dataset: { project: p.id },
                     onClick: () => { currentProject = p.id; renderAll(); },
-                }, dot, ' ' + esc(p.name));
+                }, dot, ' ' + str(p.name));
                 bar.appendChild(btn);
             }
         }
@@ -1089,10 +1089,10 @@
             const allContexts = ['general', 'nextjs', 'node', 'typescript', 'sanity', 'prisma', 'docker', 'python', 'php', 'react-native'];
 
             for (const c of project.contexts) {
-                container.appendChild(el('span', { className: 'context-tag' }, esc(c)));
+                container.appendChild(el('span', { className: 'context-tag' }, str(c)));
             }
             for (const c of allContexts.filter(c => !project.contexts.includes(c))) {
-                container.appendChild(el('span', { className: 'context-tag inactive' }, esc(c)));
+                container.appendChild(el('span', { className: 'context-tag inactive' }, str(c)));
             }
         }
 
@@ -1110,9 +1110,9 @@
 
             for (const f of files) {
                 container.appendChild(el('div', { className: 'file-row' },
-                    el('span', { className: 'file-name' }, esc(f.name)),
-                    el('span', { className: 'file-read-time' }, f.readAt ? 'read ' + esc(f.readAt) : ''),
-                    el('span', { className: 'status-badge ' + esc(f.status) }, esc(f.status))));
+                    el('span', { className: 'file-name' }, str(f.name)),
+                    el('span', { className: 'file-read-time' }, f.readAt ? 'read ' + str(f.readAt) : ''),
+                    el('span', { className: 'status-badge ' + str(f.status) }, str(f.status))));
             }
         }
 
@@ -1136,8 +1136,8 @@
                 for (const r of rules) {
                     rulesList.appendChild(el('div', { className: 'sidebar-item' },
                         el('span', { className: 'sidebar-item-icon', style: 'color:var(--yellow);' }, '\u2295'),
-                        el('span', { className: 'sidebar-item-name active' }, esc(r.name.replace('rules/', ''))),
-                        el('span', { className: 'status-badge ' + esc(r.status) }, esc(r.status))));
+                        el('span', { className: 'sidebar-item-name active' }, str(r.name.replace('rules/', ''))),
+                        el('span', { className: 'status-badge ' + str(r.status) }, str(r.status))));
                 }
             } else {
                 rulesList.appendChild(el('div', { className: 'sidebar-item' },
@@ -1150,8 +1150,8 @@
                 for (const s of skills) {
                     skillsList.appendChild(el('div', { className: 'sidebar-item' },
                         el('span', { className: 'sidebar-item-icon', style: 'color:var(--accent);' }, '\u26A1'),
-                        el('span', { className: 'sidebar-item-name active' }, esc(s.name.replace('skills/', '').replace('/SKILL.md', ''))),
-                        el('span', { className: 'status-badge ' + esc(s.status) }, esc(s.status))));
+                        el('span', { className: 'sidebar-item-name active' }, str(s.name.replace('skills/', '').replace('/SKILL.md', ''))),
+                        el('span', { className: 'status-badge ' + str(s.status) }, str(s.status))));
                 }
             } else {
                 skillsList.appendChild(el('div', { className: 'sidebar-item' },
@@ -1163,7 +1163,7 @@
             for (const a of agents) {
                 agentsList.appendChild(el('div', { className: 'sidebar-item' },
                     el('span', { className: 'sidebar-item-icon', style: 'color:var(--blue);' }, '\u25C8'),
-                    el('span', { className: 'sidebar-item-name' }, esc(a.name)),
+                    el('span', { className: 'sidebar-item-name' }, str(a.name)),
                     el('span', { className: 'status-badge idle' }, 'idle')));
             }
         }
@@ -1183,10 +1183,10 @@
             }
 
             for (const e of entries) {
-                container.appendChild(el('div', { className: 'log-entry ' + esc(e.type) },
-                    el('span', { className: 'log-time' }, esc(e.time)),
-                    el('span', { className: 'log-type ' + esc(e.type) }, esc(e.type)),
-                    el('span', { className: 'log-message' }, esc(e.message))));
+                container.appendChild(el('div', { className: 'log-entry ' + str(e.type) },
+                    el('span', { className: 'log-time' }, str(e.time)),
+                    el('span', { className: 'log-type ' + str(e.type) }, str(e.type)),
+                    el('span', { className: 'log-message' }, str(e.message))));
             }
             container.scrollTop = container.scrollHeight;
         }
@@ -1235,14 +1235,14 @@
             for (const v of violations) {
                 container.appendChild(el('div', { className: 'violation-card', style: 'border-left:none;border-right:none;border-top:none;' },
                     el('div', { className: 'violation-header' },
-                        el('div', { className: 'violation-title' }, esc(v.title)),
-                        el('span', { className: 'violation-severity ' + esc(v.severity) }, esc(v.severity))),
-                    el('div', { className: 'violation-body' }, esc(v.body)),
+                        el('div', { className: 'violation-title' }, str(v.title)),
+                        el('span', { className: 'violation-severity ' + str(v.severity) }, str(v.severity))),
+                    el('div', { className: 'violation-body' }, str(v.body)),
                     el('div', { className: 'violation-meta' },
-                        el('span', null, '\u2295 ' + esc(v.rule)),
-                        el('span', null, '\u2318 ' + esc(v.file)),
-                        el('span', null, '\u25C8 ' + esc(v.commit)),
-                        el('span', null, '\u23F1 ' + esc(v.timestamp)))));
+                        el('span', null, '\u2295 ' + str(v.rule)),
+                        el('span', null, '\u2318 ' + str(v.file)),
+                        el('span', null, '\u25C8 ' + str(v.commit)),
+                        el('span', null, '\u23F1 ' + str(v.timestamp)))));
             }
         }
 
@@ -1296,8 +1296,8 @@
             }
             renderAll();
 
-            // Poll daemon for live updates every 5s
-            setInterval(async () => {
+            // Poll daemon for live updates (recursive setTimeout avoids overlap)
+            async function poll() {
                 const liveDot = document.getElementById('live-dot');
                 const liveStatus = document.getElementById('live-status');
                 try {
@@ -1312,7 +1312,9 @@
                     liveDot.classList.add('stale');
                     liveStatus.textContent = 'disconnected';
                 }
-            }, 5000);
+                setTimeout(poll, 5000);
+            }
+            setTimeout(poll, 5000);
         }
 
         init();
