@@ -1904,8 +1904,20 @@
                 } catch { /* ignore malformed WS messages */ }
             };
 
-            ws.onclose = () => { ws = null; };
-            ws.onerror = () => { ws = null; };
+            ws.onclose = () => {
+                ws = null;
+                const liveDot = document.getElementById('live-dot');
+                const liveStatus = document.getElementById('live-status');
+                liveDot.classList.add('stale');
+                liveStatus.textContent = 'polling';
+            };
+            ws.onerror = () => {
+                ws = null;
+                const liveDot = document.getElementById('live-dot');
+                const liveStatus = document.getElementById('live-status');
+                liveDot.classList.add('stale');
+                liveStatus.textContent = 'polling';
+            };
         }
 
         async function init() {
