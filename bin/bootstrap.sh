@@ -297,9 +297,8 @@ green "  Hook scripts found: $_hooks"
 # Merge hook configuration into ~/.claude/settings.json
 if [[ -f "$DOTFILES/hooks/settings-hooks.json" ]]; then
     if [[ -f "$CLAUDE_DIR/settings.json" ]]; then
-        if command -v jq &>/dev/null && jq -e '.hooks' "$CLAUDE_DIR/settings.json" &>/dev/null; then
-            yellow "  ~/.claude/settings.json already has hooks — skipping merge"
-        elif command -v jq &>/dev/null; then
+        if command -v jq &>/dev/null; then
+            # Always merge — settings-hooks.json is source of truth for hooks
             jq -s '.[0] * .[1]' "$CLAUDE_DIR/settings.json" "$DOTFILES/hooks/settings-hooks.json" > "$CLAUDE_DIR/settings.json.tmp"
             mv "$CLAUDE_DIR/settings.json.tmp" "$CLAUDE_DIR/settings.json"
             green "  Merged hook config into ~/.claude/settings.json"
