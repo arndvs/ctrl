@@ -1856,8 +1856,13 @@
                             <div class="t-green">✓ rules/ → ~/.claude/rules/</div>
                             <div class="t-green">✓ secrets/ created from templates</div>
                             <div class="t-green">✓ shell integration wired</div>
+                            <div class="t-green">✓ ctrl &amp; shft CLI → ~/.local/bin/</div>
                             <div class="t-green">✓ Python .venv deps installed (incl. PyJWT)</div>
                             <div class="t-green">✓ supply chain hardened</div>
+                            <div>&nbsp;</div>
+                            <div class="t-dim"># try it</div>
+                            <div class="t-prompt">ctrl help</div>
+                            <div class="t-prompt">shft help</div>
                             <div>&nbsp;</div>
                             <div class="t-dim"># ready <span class="cursor"></span></div>
                         </div>
@@ -2432,7 +2437,7 @@
                 style="margin-top: 2rem; padding: 1.4rem 2rem; border: 1px solid var(--border); font-size: 1.2rem; color: var(--text-secondary); font-family: var(--sans); line-height: 1.7;">
                 <strong style="color: var(--text); font-family: var(--mono); letter-spacing: 0.08rem;">Start
                     it:</strong>
-                <code style="color: var(--accent);">bash ~/dotfiles/bin/start-hud.sh</code> — then visit
+                <code style="color: var(--accent);">ctrl dashboard</code> (or <code style="color: var(--accent);">bash ~/dotfiles/bin/start-hud.sh</code>) — then visit
                 <code style="color: var(--accent);">localhost:7823</code>. Hooks emit events automatically. No
                 configuration required.
             </div>
@@ -2508,8 +2513,9 @@
                     <div class="faq-category-tag">Removal</div>
                     <div class="faq-question">Can I remove it without it tanking my setup?</div>
                     <div class="faq-answer">
-                        <p>Yes. Run the uninstall script:</p>
-                        <div class="faq-code-block"><span class="kw">bash</span> ~/dotfiles/bin/uninstall.sh</div>
+                        <p>Yes. Run the uninstall command:</p>
+                        <div class="faq-code-block"><span class="kw">ctrl</span> uninstall</div>
+                        <p style="margin-top:0.6rem;font-size:0.95em;color:var(--text-secondary);">Or directly: <code>bash ~/dotfiles/bin/uninstall.sh</code></p>
                         <p style="margin-top:1rem;">It removes only the symlinks and shell integration that bootstrap
                             created — nothing in your project repos, nothing else in <code>~/dotfiles</code>. If you had
                             dotfiles there before installing ctrl+shft, they're untouched.</p>
@@ -2523,7 +2529,7 @@
                     <div class="faq-answer">
                         <p>No. Since you fork before cloning, your fork is your source of truth. Stop pulling upstream
                             whenever you want. The tool keeps working exactly as-is — no upstream dependency, no
-                            breaking changes you didn't ask for. And if you want out entirely, <code>uninstall.sh</code>
+                            breaking changes you didn't ask for. And if you want out entirely, <code>ctrl uninstall</code>
                             cleans it up in one command.</p>
                     </div>
                 </div>
@@ -2638,11 +2644,11 @@
                     <div class="faq-category-tag">Security</div>
                     <div class="faq-question">How do I audit what rules and skills are loaded at any given time?</div>
                     <div class="faq-answer">
-                        <p>Run <code>detect-context.sh</code> manually in any directory — it prints the active contexts
+                        <p>Run <code>ctrl context</code> in any directory — it prints the active contexts
                             and which rule files are loaded. Skills are only invoked explicitly; nothing loads silently
                             in the background.</p>
                         <div class="faq-code-block">
-                            <span class="kw">bash</span> ~/dotfiles/bin/detect-context.sh<br>
+                            <span class="kw">ctrl</span> context<br>
                             <span class="cm"># → ACTIVE_CONTEXTS=general,nextjs,node,ts</span><br>
                             <span class="cm"># → loaded: instructions/nextjs.md</span>
                         </div>
@@ -2843,8 +2849,9 @@
                     <div class="step-body">
                         <div class="step-body-inner">
                             <div class="step-code-wrap">
-                                <pre class="step-code">bash ~/dotfiles/bin/bootstrap.sh</pre>
-                                <button class="copy-btn" data-copy="bash ~/dotfiles/bin/bootstrap.sh"
+                                <pre class="step-code">ctrl bootstrap
+# or: bash ~/dotfiles/bin/bootstrap.sh</pre>
+                                <button class="copy-btn" data-copy="ctrl bootstrap"
                                     aria-label="Copy command">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
@@ -2979,7 +2986,7 @@ bash ~/dotfiles/bin/verify-github-app-token.sh</pre>
                                     Store, AFK scripts use <code>secrets/.venv</code> Python first. Re-run bootstrap.sh
                                     if venv is missing.</div>
                                 <div class="step-note">If token minting reports missing <code>PyJWT</code> or
-                                    <code>requests</code>, re-run <code>bash ~/dotfiles/bin/bootstrap.sh</code>.
+                                    <code>requests</code>, re-run <code>ctrl bootstrap</code>.
                                 </div>
                                 <div class="step-note">If minting fails with status=404, recheck installation ID, app
                                     install target, and key/app pairing.</div>
@@ -3017,8 +3024,9 @@ bash ~/dotfiles/bin/verify-github-app-token.sh</pre>
                     <div class="step-body">
                         <div class="step-body-inner">
                             <div class="step-code-wrap">
-                                <pre class="step-code">bash ~/dotfiles/bin/sync-settings.sh</pre>
-                                <button class="copy-btn" data-copy="bash ~/dotfiles/bin/sync-settings.sh"
+                                <pre class="step-code">ctrl sync
+# or: bash ~/dotfiles/bin/sync-settings.sh</pre>
+                                <button class="copy-btn" data-copy="ctrl sync"
                                     aria-label="Copy command">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
