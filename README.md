@@ -503,10 +503,10 @@ docker sandbox run claude .
 │   ├── validate-symlinks.sh         verify bootstrap symlinks
 │   ├── mint_github_app_token.py     AFK token minting
 │   ├── verify-github-app-token.sh   safe token verification
-│   ├── dashboard-daemon.js          compliance dashboard HTTP server
+│   ├── dashboard-daemon.js          HUD HTTP server
 │   ├── start-dashboard.sh           daemon lifecycle (start/stop/status/restart)
 │   └── write-dashboard-state.sh     non-blocking compliance event emitter
-├── dashboard/                       ← compliance dashboard UI
+├── dashboard/                       ← HUD UI
 │   ├── README.md                    dashboard architecture + API reference
 │   └── index.html
 ├── site/                            ← landing page (ctrlshft.dev)
@@ -742,24 +742,71 @@ Project contributors: [arndvs/ctrlshft/graphs/contributors](https://github.com/a
 
 ---
 
+## HUD — real-time agent observability
+
+<p align="center">
+  <img src="site/assets/hud-screenshot.png" alt="ctrl+shft HUD — real-time compliance dashboard showing project tabs, loaded rules and skills, session log, and compliance history" style="width: 100%; max-width: 1200px; height: auto; border: 1px solid #1e1e1e;" />
+</p>
+
+The HUD is a live dashboard that shows what your agent is actually doing — which rules loaded, which skills fired, which projects are being touched, and whether compliance checks pass or fail. It runs locally at `localhost:7823` and updates in real-time via WebSocket.
+
+```bash
+bash ~/dotfiles/bin/start-dashboard.sh
+# Visit http://localhost:7823
+```
+
+### What it tracks
+
+| Panel | What it shows |
+|-------|---------------|
+| **Project tabs** | Every project the agent touches — dotfiles, client projects, anything. Cross-project reads detected automatically via git root |
+| **Compliance rate** | Rolling compliance percentage across sessions with trend sparkline |
+| **Rules loaded** | Count of rules active in the current session, with active context count |
+| **Violations** | Real-time violation count this session |
+| **Sessions audited** | Total sessions processed by the compliance-audit skill |
+| **Active context** | Which stack contexts are active (nextjs, sanity, node, etc.) — detected by `detect-context.sh` |
+| **Loaded files** | Which instructions, skills, rules, and agents are loaded, with read timestamps and status badges |
+| **Session log** | Chronological event stream — context changes, task bookends, reads, compliance results |
+| **Compliance history** | Per-day compliance trend chart |
+| **Violations panel** | Recent violations with severity, rule reference, file location, and timestamp |
+| **Sidebar inventory** | Full inventory of all rules, skills, and agents with loaded/available status |
+
+### Architecture
+
+The HUD has three layers:
+
+1. **Event producers** — hooks (`dashboard-reads.sh`, `dashboard-session.sh`), `detect-context.sh`, `compliance-audit` skill, and `write-dashboard-state.sh` (sourceable shell functions)
+2. **Daemon** — `bin/dashboard-daemon.js` (~880 lines, zero required npm dependencies). Listens on named pipe (< 1ms), HTTP POST, and JSONL file watcher. Optional SQLite persistence via `better-sqlite3`
+3. **Frontend** — `dashboard/index.html` (single-file). Connects via WebSocket (`ws://localhost:7822`) for real-time updates, falls back to HTTP polling
+
+Cross-project tracking works automatically. When the agent reads files outside `~/dotfiles/`, the reads hook walks up the directory tree to find the `.git` root, extracts the project name, and routes events to the correct project tab.
+
+### Lifecycle commands
+
+| Command | What it does |
+|---------|-------------|
+| `bash ~/dotfiles/bin/start-dashboard.sh` | Start daemon (background) |
+| `bash ~/dotfiles/bin/start-dashboard.sh stop` | Stop daemon |
+| `bash ~/dotfiles/bin/start-dashboard.sh status` | Check if running |
+| `bash ~/dotfiles/bin/start-dashboard.sh restart` | Stop + start |
+
+Port defaults to `7823`. Override with `DASHBOARD_PORT=8080`.
+
+### Optional: persistent history
+
+```bash
+cd ~/dotfiles && npm install better-sqlite3
+```
+
+Without it, the daemon uses in-memory buffers + JSONL fallback. History resets on restart.
+
+See [`dashboard/README.md`](dashboard/README.md) for the full API reference, event types, auto-start configuration (launchd/systemd), and data persistence details.
+
+---
+
 ## Observability & Benchmarking (Roadmap)
 
-> Status: **partially shipped** — see [docs/observability-benchmarking-plan.md](docs/observability-benchmarking-plan.md) for the tracked implementation plan.
-
-ctrl+shft now has compliance observability — a live dashboard showing which rules and skills are loaded, active contexts, and compliance audit results. Token tracking, cost data, and accuracy metrics are still planned.
-
-### What's available today
-
-| Capability              | Status              | Notes                                                                          |
-| ----------------------- | ------------------- | ------------------------------------------------------------------------------ |
-| Compliance dashboard    | **Shipped**         | `dashboard/index.html` + `bin/dashboard-daemon.js` at localhost:7823           |
-| Compliance events       | **Shipped**         | `write-dashboard-state.sh` emits events via pipe/HTTP/JSONL fallback           |
-| Compliance audit skill  | **Shipped**         | Auto-invoked after do-work/tdd/debugging — rule-by-rule review                 |
-| OpenTelemetry (VS Code) | Available, disabled | `otel.enabled` and `otel.captureContent` in settings.json — 2 settings to flip |
-| Agent debug logs        | Enabled             | `agentDebugLog.fileLogging.enabled: true` — raw Copilot agent logs to disk     |
-| Model attribution       | Static only         | Agent files declare `model:` in frontmatter. No runtime tracking               |
-| Token/cost tracking     | Not built           | shft deletes raw Claude output after each iteration                            |
-| Accuracy tracking       | Not built           | No scoring, no proxy signals, no trend data                                    |
+> Status: **HUD shipped** — see [docs/observability-benchmarking-plan.md](docs/observability-benchmarking-plan.md) for the tracked implementation plan.
 
 ### What's planned
 
@@ -771,7 +818,7 @@ ctrl+shft now has compliance observability — a live dashboard showing which ru
 | CI Telemetry Reports   | AFK      | GitHub Actions daily reports + README badge for cost and accuracy                                                                   |
 | Enable OTEL            | HITL     | Turn on VS Code's built-in OpenTelemetry, document what it actually emits                                                           |
 | Accuracy Framework     | HITL     | Human scoring UX + automated proxy signals (test pass/fail, reverts, re-opened issues)                                              |
-| Telemetry Dashboard    | HITL     | Full telemetry dashboard — cost, tokens, model distribution, accuracy, hallucination rate (extends existing compliance dashboard)    |
+| Telemetry Dashboard    | HITL     | Full telemetry dashboard — cost, tokens, model distribution, accuracy, hallucination rate (extends existing HUD)    |
 
 ### Key constraints
 
