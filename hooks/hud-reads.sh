@@ -16,7 +16,7 @@ INPUT=$(cat)
 # jq required — bail without it
 command -v jq &>/dev/null || exit 0
 
-HOOK_EVENT=$(echo "$INPUT" | jq -r '.hook_event_name // "unknown"')
+HOOK_EVENT=$(echo "$INPUT" | jq -r '.hookEventName // .hook_event_name // .event // "unknown"')
 
 # Extract file path based on hook type
 case "$HOOK_EVENT" in

@@ -21,7 +21,7 @@ INPUT=$(cat)
 
 # Extract fields (graceful fallback if jq is missing)
 if command -v jq &>/dev/null; then
-    HOOK_EVENT=$(echo "$INPUT" | jq -r '.hookEventName // .event // "unknown"')
+    HOOK_EVENT=$(echo "$INPUT" | jq -r '.hookEventName // .hook_event_name // .event // "unknown"')
     SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // .sessionId // "unknown"')
     CWD=$(echo "$INPUT" | jq -r '.cwd // .workingDirectory // empty')
     TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // .transcriptPath // empty')
