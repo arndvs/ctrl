@@ -153,7 +153,7 @@ Violations: [n] ([severity summary])
 [brief description of any violations and disposition]
 ```
 
-Then push the result to the dashboard daemon:
+Then push the result to the HUD daemon:
 
 ```bash
 source ~/dotfiles/bin/write-dashboard-state.sh

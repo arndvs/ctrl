@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dashboard-session.sh — SessionStart / Stop hook: emit dashboard events.
+# dashboard-session.sh — SessionStart / Stop hook: emit HUD events.
 #
 # Receives Claude Code hook JSON on stdin containing session lifecycle data.
 # Uses write-dashboard-state.sh for proper JSON escaping and transport.

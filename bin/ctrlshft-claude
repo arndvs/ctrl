@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ctrlshft-claude — Drop-in terminal wrapper for `claude`
 #
-# Feeds "Read X" and compliance outputs to the dashboard daemon.
+# Feeds "Read X" and compliance outputs to the HUD daemon.
 # Fully transparent — output is identical to running `claude` directly.
 #
 # Setup (add to ~/.bashrc or ~/.zshrc after sourcing write-dashboard-state.sh):

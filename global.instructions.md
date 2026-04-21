@@ -70,7 +70,7 @@ Read the relevant SKILL.md in full, find the most suitable place to integrate th
 </thinking>
 
 <dashboard-events>
-When the compliance dashboard daemon is running (check: `curl -sf http://localhost:7823/api/state > /dev/null 2>&1`), emit events to give the dashboard visibility into VS Code Copilot sessions that the CLI wrapper can't observe.
+When the HUD daemon is running (check: `curl -sf http://localhost:7823/api/state > /dev/null 2>&1`), emit events to give the HUD visibility into VS Code Copilot sessions that the CLI wrapper can't observe.
 
 **When to emit:**
 1. **On skill/instruction/rule load** — After reading a SKILL.md, instructions file, or rule file, emit a `read` event. Batch them into a single terminal call:

@@ -3,7 +3,7 @@
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   com.ctrlshft.dashboard.plist
-  macOS launchd agent — starts the dashboard daemon on login
+  macOS launchd agent — starts the HUD daemon on login
 
   Install:
     cp ~/dotfiles/bin/com.ctrlshft.dashboard.plist ~/Library/LaunchAgents/
