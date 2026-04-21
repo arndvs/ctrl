@@ -33,6 +33,13 @@ _PIPE="$_WD/dashboard.pipe"
 _JSONL="$_WD/events.jsonl"
 _HTTP_PORT="${DASHBOARD_PORT:-7823}"
 
+# ── _can_use_pipe — check if named pipe transport is available ────────────────
+# Returns 0 (true) if the pipe exists, is a FIFO, and we're not on MSYS/Windows
+# where mkfifo creates POSIX pipes that have no reader.
+_can_use_pipe() {
+    [[ -p "$_PIPE" && "$(uname -o 2>/dev/null)" != "Msys" ]]
+}
+
 # ── write_dashboard_event ─────────────────────────────────────────────────────
 write_dashboard_event() {
     local _type="$1"
@@ -62,9 +69,7 @@ write_dashboard_event() {
         "$_type" "$_proj" "$_path" "$_ctx" "$_safe_msg" "$_ts" "$_td")
 
     # Transport 1 — named pipe (background, non-blocking)
-    # Skip on Windows/MSYS — mkfifo creates POSIX pipes that have no reader,
-    # silently swallowing events. Only use if a real reader exists.
-    if [[ -p "$_PIPE" && "$(uname -o 2>/dev/null)" != "Msys" ]]; then
+    if _can_use_pipe; then
         ( printf '%s\n' "$_payload" > "$_PIPE" ) 2>/dev/null &
         return 0
     fi
@@ -104,7 +109,7 @@ update_dashboard_compliance() {
         "$_proj" "$_ts" "$_pass" "$_fail" "$_warn" "$_rate" \
         "$_pass" "$_warn" "$_fail" "$_rate")
 
-    if [[ -p "$_PIPE" ]]; then
+    if _can_use_pipe; then
         ( printf '%s\n' "$_payload" > "$_PIPE" ) 2>/dev/null &
     elif command -v curl &>/dev/null; then
         curl -sf --max-time 0.3 \
@@ -117,6 +122,7 @@ update_dashboard_compliance() {
 }
 
 # Export for use in subshells
+export -f _can_use_pipe                  2>/dev/null || true
 export -f write_dashboard_event          2>/dev/null || true
 export -f update_dashboard_compliance    2>/dev/null || true
 

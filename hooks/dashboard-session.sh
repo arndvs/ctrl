@@ -2,8 +2,8 @@
 # dashboard-session.sh — SessionStart / Stop hook: emit dashboard events.
 #
 # Receives Claude Code hook JSON on stdin containing session lifecycle data.
-# Writes a JSONL event to ~/dotfiles/working/events.jsonl for the dashboard
-# daemon to pick up. Zero tool-call cost — fires automatically.
+# Uses write-dashboard-state.sh for proper JSON escaping and transport.
+# Zero tool-call cost — fires automatically.
 #
 # Hook events:
 #   SessionStart → {session_id, cwd}
@@ -11,8 +11,10 @@
 
 set -euo pipefail
 
-EVENTS_FILE="$HOME/dotfiles/working/events.jsonl"
-mkdir -p "$(dirname "$EVENTS_FILE")"
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+
+# Source the event emitter (provides write_dashboard_event with proper escaping)
+source "$DOTFILES/bin/write-dashboard-state.sh"
 
 # Read hook JSON from stdin
 INPUT=$(cat)
@@ -31,48 +33,26 @@ else
     TRANSCRIPT=""
 fi
 
-# Derive project name from cwd (last path segment)
+# cd to project dir so write_dashboard_event picks up the correct project name
 if [[ -n "$CWD" ]]; then
-    PROJECT=$(basename "$CWD")
-    PROJECT_PATH="$CWD"
-else
-    PROJECT=$(basename "$PWD")
-    PROJECT_PATH="$PWD"
+    cd "$CWD" 2>/dev/null || true
 fi
-
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-TIME_DISPLAY=$(date +"%H:%M:%S")
 
 case "$HOOK_EVENT" in
     SessionStart)
-        EVENT_TYPE="info"
-        MESSAGE="Session started (hook) — $SESSION_ID"
+        write_dashboard_event "info" "Session started (hook) — $SESSION_ID"
         ;;
     Stop)
-        EVENT_TYPE="info"
         if [[ -n "$TRANSCRIPT" ]]; then
-            MESSAGE="Session ended (hook) — transcript: $TRANSCRIPT"
+            write_dashboard_event "info" "Session ended (hook) — transcript: $TRANSCRIPT"
         else
-            MESSAGE="Session ended (hook) — $SESSION_ID"
+            write_dashboard_event "info" "Session ended (hook) — $SESSION_ID"
         fi
         ;;
     *)
-        EVENT_TYPE="info"
-        MESSAGE="Hook event: $HOOK_EVENT — $SESSION_ID"
+        write_dashboard_event "info" "Hook event: $HOOK_EVENT — $SESSION_ID"
         ;;
 esac
-
-# Write JSONL event (daemon picks this up via its JSONL watcher)
-printf '{"type":"%s","project":"%s","projectPath":"%s","message":"%s","timestamp":"%s","time":"%s","source":"hook","hookEvent":"%s","sessionId":"%s"}\n' \
-    "$EVENT_TYPE" \
-    "$PROJECT" \
-    "$PROJECT_PATH" \
-    "$MESSAGE" \
-    "$TIMESTAMP" \
-    "$TIME_DISPLAY" \
-    "$HOOK_EVENT" \
-    "$SESSION_ID" \
-    >> "$EVENTS_FILE"
 
 # Allow the session to proceed
 exit 0

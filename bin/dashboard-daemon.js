@@ -535,6 +535,10 @@ function startJsonlWatcher() {
         // Watch JSONL for new lines (AFK Docker events)
         try {
             const stat = fs.statSync(JSONL_PATH);
+            if (stat.size < lastSize) {
+                warn('JSONL file truncated — resetting read offset from', lastSize, 'to 0');
+                lastSize = 0;
+            }
             if (stat.size > lastSize) {
                 const fd  = fs.openSync(JSONL_PATH, 'r');
                 const buf = Buffer.alloc(stat.size - lastSize);
@@ -603,6 +607,18 @@ function startWsServer() {
         wsClients.add(socket);
         socket.on('error', () => wsClients.delete(socket));
         socket.on('close', () => wsClients.delete(socket));
+        socket.on('data', (data) => {
+            // Minimal frame handler: detect close (0x8) and ping (0x9) opcodes
+            if (data.length < 2) return;
+            const opcode = data[0] & 0x0f;
+            if (opcode === 0x8) { socket.destroy(); return; }
+            if (opcode === 0x9) {
+                // Respond to ping with pong (opcode 0xA), echo payload
+                const pong = Buffer.from(data);
+                pong[0] = (pong[0] & 0xf0) | 0x0a;
+                try { socket.write(pong); } catch { wsClients.delete(socket); }
+            }
+        });
 
         // Send initial state
         wsFrame(socket, JSON.stringify({
@@ -644,7 +660,12 @@ function scanFileInventory() {
         try {
             const entries = fs.readdirSync(path.join(DOTFILES, dir));
             for (const e of entries) {
-                if (e === 'README.md' || e === '_local' || e === '_vendor') continue;
+                if (e === 'README.md') continue;
+                // Recurse into underscore folders (_local, _vendor)
+                if (e.startsWith('_')) {
+                    scan(dir + '/' + e, type);
+                    continue;
+                }
                 const full = path.join(DOTFILES, dir, e);
                 if (type === 'skill') {
                     const skill = path.join(full, 'SKILL.md');
@@ -796,8 +817,18 @@ function startHttpServer() {
         // POST /api/event — HTTP fallback for shells without pipe access
         if (req.method === 'POST' && url.pathname === '/api/event') {
             let body = '';
-            req.on('data', c => body += c);
+            let aborted = false;
+            req.on('data', c => {
+                body += c;
+                if (body.length > 65536) {
+                    aborted = true;
+                    res.writeHead(413, { 'Content-Type': 'application/json' });
+                    res.end('{"ok":false,"error":"Payload too large"}');
+                    req.destroy();
+                }
+            });
             req.on('end', () => {
+                if (aborted) return;
                 try {
                     processLine(body.trim(), 'http');
                     res.writeHead(200, { 'Content-Type': 'application/json' });
