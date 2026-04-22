@@ -204,6 +204,7 @@ case "$CMD" in
             stop)       bash "$DOTFILES/bin/start-hud.sh" --stop "$@" ;;
             status)     bash "$DOTFILES/bin/start-hud.sh" --status "$@" ;;
             restart)    bash "$DOTFILES/bin/start-hud.sh" --restart "$@" ;;
+            --fg|foreground) bash "$DOTFILES/bin/start-hud.sh" --fg "$@" ;;
             log|logs)
                 _log="$DOTFILES/working/hud-daemon.log"
                 if [[ ! -f "$_log" ]]; then
@@ -324,6 +325,28 @@ except:
                 exit 1
                 ;;
         esac
+        ;;
+
+    # ── sync-settings ──────────────────────────────────────────────────────────
+    sync-settings)
+        if [[ ! -f "$DOTFILES/bin/sync-settings.sh" ]]; then
+            red "sync-settings.sh not found."
+            exit 1
+        fi
+        green "ctrl sync-settings — merging managed VS Code settings"
+        echo ""
+        bash "$DOTFILES/bin/sync-settings.sh" "$@"
+        ;;
+
+    # ── verify-token ───────────────────────────────────────────────────────────
+    verify-token)
+        if [[ ! -f "$DOTFILES/bin/verify-github-app-token.sh" ]]; then
+            red "verify-github-app-token.sh not found."
+            exit 1
+        fi
+        green "ctrl verify-token — testing GitHub App token mint"
+        echo ""
+        bash "$DOTFILES/bin/verify-github-app-token.sh" "$@"
         ;;
 
     # ── migrate ────────────────────────────────────────────────────────────────
@@ -455,14 +478,24 @@ except:
         echo "  ctrl hud clear         clear events for a project"
         echo "  ctrl hud violations    show violations for a project"
         echo "  ctrl hud state         full debug state dump (JSON)"
+        echo "  ctrl hud --fg          run HUD in foreground (debug mode)"
         echo "  ctrl hud open          open HUD in browser"
         echo "  ctrl hud url           print the HUD URL"
+        echo ""
+        echo "  Settings"
+        echo "  ──────────────────────────────────────────────────────────────"
+        echo "  ctrl sync-settings      merge managed VS Code settings"
+        echo "                          (--dry-run, --stable)"
         echo ""
         echo "  Client management"
         echo "  ──────────────────────────────────────────────────────────────"
         echo "  ctrl new-client         onboard a new client"
         echo "  ctrl migrate            read-only diagnostic for existing setups"
         echo "  ctrl uninstall          safely remove ctrl+shft"
+        echo ""
+        echo "  Credentials"
+        echo "  ──────────────────────────────────────────────────────────────"
+        echo "  ctrl verify-token       test-mint a GitHub App token"
         echo ""
         echo "  Session analysis (requires sheal)"
         echo "  ──────────────────────────────────────────────────────────────"
