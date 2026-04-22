@@ -193,7 +193,7 @@ case "$CMD" in
 
         green "shft run — HITL mode (you watch, you approve)"
         echo ""
-        echo "  Claude will propose changes with --permission-mode accept-edits."
+        echo "  Claude will propose changes with --permission-mode acceptEdits."
         echo "  You review and approve each edit in real time."
         echo ""
 
