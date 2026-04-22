@@ -26,7 +26,7 @@ Alternatively: `bash ~/dotfiles/bin/start-hud.sh`
 | `ctrl hud clear`                                    | Clear events for a project           |
 | `ctrl hud open`                                     | Open HUD in browser                  |
 | `ctrl hud url`                                      | Print the HUD URL                    |
-| `bash ~/dotfiles/bin/start-hud.sh foreground`       | Run in foreground (no daemonization) |
+| `ctrl hud --fg`                                     | Run in foreground (debug mode)       |
 
 Port defaults to `7823`. Override with `HUD_PORT=8080 ctrl hud`.
 
