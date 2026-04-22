@@ -778,8 +778,8 @@ bash ~/dotfiles/bin/sync-settings.sh
 
 ```bash
 cd ~/dotfiles && git pull
-ctrl bootstrap           # re-validates, fixes stale symlinks
-ctrl sync                # or: bash ~/dotfiles/bin/sync-settings.sh (local only)
+ctrl bootstrap                        # re-validates, fixes stale symlinks
+bash ~/dotfiles/bin/sync-settings.sh  # optional: merge local VS Code/settings state
 source ~/.bashrc
 ```
 

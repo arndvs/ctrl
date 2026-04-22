@@ -1683,7 +1683,7 @@
             transition: transform 0.3s, opacity 0.3s;
         }
 
-        .hamburger-line + .hamburger-line {
+        .hamburger-line+.hamburger-line {
             margin-top: 5px;
         }
 
@@ -1897,7 +1897,7 @@
                 <li><a href="#hud">hud</a></li>
                 <li><a href="#shft">shft</a></li>
                 <li><a href="#faq">faq</a></li>
-                <li><a href="#contributors">contributors</a></li>
+                <li><a href="#contributors-grid">contributors</a></li>
                 <li><a href="#install">install</a></li>
                 <li><a href="https://github.com/arndvs/ctrlshft" class="nav-cta sheen-cta">GitHub</a></li>
             </ul>
@@ -1917,7 +1917,7 @@
             <li><a href="#hud">hud</a></li>
             <li><a href="#shft">shft</a></li>
             <li><a href="#faq">faq</a></li>
-            <li><a href="#contributors">contributors</a></li>
+            <li><a href="#contributors-grid">contributors</a></li>
             <li><a href="#install">install</a></li>
             <li><a href="https://github.com/arndvs/ctrlshft" class="nav-cta sheen-cta">GitHub</a></li>
         </ul>
@@ -2559,7 +2559,8 @@
                 style="margin-top: 2rem; padding: 1.4rem 2rem; border: 1px solid var(--border); font-size: 1.2rem; color: var(--text-secondary); font-family: var(--sans); line-height: 1.7;">
                 <strong style="color: var(--text); font-family: var(--mono); letter-spacing: 0.08rem;">Start
                     it:</strong>
-                <code style="color: var(--accent);">ctrl dashboard</code> (or <code style="color: var(--accent);">bash ~/dotfiles/bin/start-hud.sh</code>) — then visit
+                <code style="color: var(--accent);">ctrl dashboard</code> (or <code
+                    style="color: var(--accent);">bash ~/dotfiles/bin/start-hud.sh</code>) — then visit
                 <code style="color: var(--accent);">localhost:7823</code>. Hooks emit events automatically. No
                 configuration required.
             </div>
@@ -2637,7 +2638,8 @@
                     <div class="faq-answer">
                         <p>Yes. Run the uninstall command:</p>
                         <div class="faq-code-block"><span class="kw">ctrl</span> uninstall</div>
-                        <p style="margin-top:0.6rem;font-size:0.95em;color:var(--text-secondary);">Or directly: <code>bash ~/dotfiles/bin/uninstall.sh</code></p>
+                        <p style="margin-top:0.6rem;font-size:0.95em;color:var(--text-secondary);">Or directly:
+                            <code>bash ~/dotfiles/bin/uninstall.sh</code></p>
                         <p style="margin-top:1rem;">It removes only the symlinks and shell integration that bootstrap
                             created — nothing in your project repos, nothing else in <code>~/dotfiles</code>. If you had
                             dotfiles there before installing ctrl+shft, they're untouched.</p>
@@ -2651,7 +2653,8 @@
                     <div class="faq-answer">
                         <p>No. Since you fork before cloning, your fork is your source of truth. Stop pulling upstream
                             whenever you want. The tool keeps working exactly as-is — no upstream dependency, no
-                            breaking changes you didn't ask for. And if you want out entirely, <code>ctrl uninstall</code>
+                            breaking changes you didn't ask for. And if you want out entirely,
+                            <code>ctrl uninstall</code>
                             cleans it up in one command.</p>
                     </div>
                 </div>
@@ -2973,8 +2976,7 @@
                             <div class="step-code-wrap">
                                 <pre class="step-code">ctrl bootstrap
 # or: bash ~/dotfiles/bin/bootstrap.sh</pre>
-                                <button class="copy-btn" data-copy="ctrl bootstrap"
-                                    aria-label="Copy command">
+                                <button class="copy-btn" data-copy="ctrl bootstrap" aria-label="Copy command">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                                         <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
@@ -3146,10 +3148,8 @@ bash ~/dotfiles/bin/verify-github-app-token.sh</pre>
                     <div class="step-body">
                         <div class="step-body-inner">
                             <div class="step-code-wrap">
-                                <pre class="step-code">ctrl sync
-# or: bash ~/dotfiles/bin/sync-settings.sh</pre>
-                                <button class="copy-btn" data-copy="ctrl sync"
-                                    aria-label="Copy command">
+                                <pre class="step-code">bash ~/dotfiles/bin/sync-settings.sh</pre>
+                                <button class="copy-btn" data-copy="bash ~/dotfiles/bin/sync-settings.sh" aria-label="Copy command">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
                                         <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
