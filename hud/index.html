@@ -1551,10 +1551,10 @@
     </div>
 
     <!-- SHUTDOWN CONFIRM -->
-    <div class="shutdown-overlay" id="shutdown-overlay" role="dialog" aria-modal="true" aria-labelledby="kill-dialog-title">
+    <div class="shutdown-overlay" id="shutdown-overlay" role="dialog" aria-modal="true" aria-labelledby="kill-dialog-title" aria-describedby="kill-dialog-desc">
         <div class="shutdown-dialog">
             <h3 id="kill-dialog-title">Kill HUD Daemon?</h3>
-            <p>This will stop the daemon process.<br>Restart with <code style="color:var(--accent)">ctrl dashboard</code> <span style="color:var(--text-dim)">or</span> <code style="color:var(--accent)">bash ~/dotfiles/bin/start-hud.sh</code></p>
+            <p id="kill-dialog-desc">This will stop the daemon process.<br>Restart with <code style="color:var(--accent)">ctrl dashboard</code> <span style="color:var(--text-dim)">or</span> <code style="color:var(--accent)">bash ~/dotfiles/bin/start-hud.sh</code></p>
             <div class="shutdown-actions">
                 <button class="btn-cancel" id="kill-cancel">Cancel <kbd style="opacity:0.5;margin-left:0.4rem">Esc</kbd></button>
                 <button class="btn-confirm-kill" id="kill-confirm">Kill Daemon</button>
@@ -2153,11 +2153,25 @@
             _killTrigger = document.activeElement;
             shutdownOverlay.classList.add('visible');
             document.getElementById('kill-cancel').focus();
+            shutdownOverlay.addEventListener('keydown', _trapFocus);
         }
 
         function hideKillDialog() {
+            shutdownOverlay.removeEventListener('keydown', _trapFocus);
             shutdownOverlay.classList.remove('visible');
             if (_killTrigger) _killTrigger.focus();
+        }
+
+        function _trapFocus(e) {
+            if (e.key !== 'Tab') return;
+            var focusable = shutdownOverlay.querySelectorAll('button');
+            var first = focusable[0];
+            var last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
         }
 
         async function killDaemon() {
