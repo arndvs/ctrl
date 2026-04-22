@@ -228,26 +228,26 @@ Every skill's `description` is loaded into the agent's system prompt at session 
 
 The benefit: ⚡ skills act as passive guardrails. You don't remember to say "use the debugging skill" — the agent recognizes an error and loads the root-cause-first investigation protocol on its own. Same rigorous process every time, without you thinking about it.
 
-| Skill                     | What it does                                                                                          |
-| ------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `do-work`                 | Detect your stack's feedback loops. Understand → Plan → Implement → Validate → Commit.                |
-| `grill-me`                | Interrogate you about a plan until shared understanding. One question at a time, recommended answers. |
-| `write-a-prd`             | Explore codebase, interview you, sketch module boundaries, write PRD, submit as GitHub issue.         |
-| `prd-to-issues`           | Break a PRD into vertical slices. Label each AFK or HITL. Create GitHub issues with dependencies.     |
-| `architect` ⚡            | Plan implementation — vertical slices, dependency graphs, acceptance criteria.                        |
-| `skill-scaffolder`        | Scaffold new agent skills from production-tested patterns. Interview → architecture → directory.      |
-| `explore` ⚡              | Decompose a topic, spawn parallel sub-agents, synthesize a summary.                                   |
-| `research` ⚡             | Cache expensive exploration into `research.md`. Staleness checks, lifecycle management.               |
-| `codebase-audit` ⚡       | Ruthless code audit — real problems only, grouped by severity. No manufactured issues.                |
-| `improve-architecture` ⚡ | Find shallow-module clusters, spawn parallel design agents, file a GitHub RFC.                        |
-| `tdd`                     | Red-green refactor. Failing test → implement → refactor. Backend only.                                |
-| `systematic-debugging` ⚡ | Root-cause-first — investigate → pattern analysis → hypothesis → fix.                                 |
-| `atomic-commits` ⚡       | Branch-isolated atomic commits. Survey diff, group by seam, commit or ship (push + PR).               |
-| `code-review`             | Focused review of staged or recent changes. Edge cases, logic errors, integration risks.              |
-| `document`                | Write, update, or audit documentation. Accurate, minimal, audience-appropriate.                       |
-| `compliance-audit` ⚡     | Auto-invoked after do-work/tdd/debugging. Rule-by-rule review, violation flagging, skill gap detection.|
-| `stress-test`             | Adversarial 19-scenario protocol across 6 categories. Validates rule compliance boundaries.           |
-| `sanity-best-practices`   | Sanity schema design, GROQ, TypeGen, Visual Editing, Portable Text, framework integrations.           |
+| Skill                     | What it does                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `do-work`                 | Detect your stack's feedback loops. Understand → Plan → Implement → Validate → Commit.                  |
+| `grill-me`                | Interrogate you about a plan until shared understanding. One question at a time, recommended answers.   |
+| `write-a-prd`             | Explore codebase, interview you, sketch module boundaries, write PRD, submit as GitHub issue.           |
+| `prd-to-issues`           | Break a PRD into vertical slices. Label each AFK or HITL. Create GitHub issues with dependencies.       |
+| `architect` ⚡            | Plan implementation — vertical slices, dependency graphs, acceptance criteria.                          |
+| `skill-scaffolder`        | Scaffold new agent skills from production-tested patterns. Interview → architecture → directory.        |
+| `explore` ⚡              | Decompose a topic, spawn parallel sub-agents, synthesize a summary.                                     |
+| `research` ⚡             | Cache expensive exploration into `research.md`. Staleness checks, lifecycle management.                 |
+| `codebase-audit` ⚡       | Ruthless code audit — real problems only, grouped by severity. No manufactured issues.                  |
+| `improve-architecture` ⚡ | Find shallow-module clusters, spawn parallel design agents, file a GitHub RFC.                          |
+| `tdd`                     | Red-green refactor. Failing test → implement → refactor. Backend only.                                  |
+| `systematic-debugging` ⚡ | Root-cause-first — investigate → pattern analysis → hypothesis → fix.                                   |
+| `atomic-commits` ⚡       | Branch-isolated atomic commits. Survey diff, group by seam, commit or ship (push + PR).                 |
+| `code-review`             | Focused review of staged or recent changes. Edge cases, logic errors, integration risks.                |
+| `document`                | Write, update, or audit documentation. Accurate, minimal, audience-appropriate.                         |
+| `compliance-audit` ⚡     | Auto-invoked after do-work/tdd/debugging. Rule-by-rule review, violation flagging, skill gap detection. |
+| `stress-test`             | Adversarial 19-scenario protocol across 6 categories. Validates rule compliance boundaries.             |
+| `sanity-best-practices`   | Sanity schema design, GROQ, TypeGen, Visual Editing, Portable Text, framework integrations.             |
 
 Add your own: `skills/_local/your-skill/SKILL.md` — auto-discovered, gitignored.
 
@@ -346,14 +346,14 @@ These principles are working if you see:
 
 Claude Code lifecycle hooks — shell scripts that fire on tool use and session events. Bootstrap symlinks `hooks/` → `~/.claude/hooks/` and merges configuration from `settings-hooks.json` into `~/.claude/settings.json`.
 
-| Hook | Event | What it does |
-|------|-------|-------------|
-| `secret-guard.sh` | PreToolUse | Blocks commands that expose credentials (`echo $TOKEN`, bare `env`/`printenv`, `cat secrets/`) |
-| `migration-guard.sh` | PreToolUse | Blocks database migration commands targeting non-test databases |
-| `compaction-guard.sh` | PreCompact | Blocks auto-compaction at ~95% context; directs agent to follow handoff protocol |
-| `format-check.sh` | Stop | Detects Biome/Prettier/ESLint and formats modified files (non-blocking) |
-| `typecheck.sh` | Stop | Runs `tsc --noEmit` on TypeScript projects; blocks stop until types pass |
-| `context-warning.sh` | UserPromptSubmit | Stub: graduated warnings at 40/70% context (pending statusLine experiment) |
+| Hook                  | Event            | What it does                                                                                   |
+| --------------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
+| `secret-guard.sh`     | PreToolUse       | Blocks commands that expose credentials (`echo $TOKEN`, bare `env`/`printenv`, `cat secrets/`) |
+| `migration-guard.sh`  | PreToolUse       | Blocks database migration commands targeting non-test databases                                |
+| `compaction-guard.sh` | PreCompact       | Blocks auto-compaction at ~95% context; directs agent to follow handoff protocol               |
+| `format-check.sh`     | Stop             | Detects Biome/Prettier/ESLint and formats modified files (non-blocking)                        |
+| `typecheck.sh`        | Stop             | Runs `tsc --noEmit` on TypeScript projects; blocks stop until types pass                       |
+| `context-warning.sh`  | UserPromptSubmit | Stub: graduated warnings at 40/70% context (pending statusLine experiment)                     |
 
 Hooks communicate via exit codes: **0** = allow, **2** = block. See `hooks/README.md` for full documentation, customization, and the `experiments/` directory for in-progress prototypes.
 
@@ -413,67 +413,67 @@ shft help     # autonomous execution commands
 
 ### ctrl — infrastructure management
 
-| Command | What it does |
-|---------|-------------|
-| `ctrl check` | Validate symlinks + environment |
-| `ctrl bootstrap [opts]` | Run bootstrap (`--adopt`, `--minimal`) |
-| `ctrl sync` | `git pull` + bootstrap + reload shell |
-| `ctrl status` | Show contexts, client, symlinks, dashboard status |
-| `ctrl context` | Detect and display active contexts |
+| Command                 | What it does                                      |
+| ----------------------- | ------------------------------------------------- |
+| `ctrl check`            | Validate symlinks + environment                   |
+| `ctrl bootstrap [opts]` | Run bootstrap (`--adopt`, `--minimal`)            |
+| `ctrl sync`             | `git pull` + bootstrap + reload shell             |
+| `ctrl status`           | Show contexts, client, symlinks, dashboard status |
+| `ctrl context`          | Detect and display active contexts                |
 
 #### ctrl dashboard (HUD)
 
-| Command | What it does |
-|---------|-------------|
-| `ctrl dashboard` | Start the compliance HUD |
-| `ctrl dashboard stop` | Stop the HUD daemon |
-| `ctrl dashboard status` | Check if running |
-| `ctrl dashboard restart` | Stop + start |
-| `ctrl dashboard logs [-f]` | Show daemon log (add `-f` to follow) |
-| `ctrl dashboard events` | Show recent events for current project |
-| `ctrl dashboard violations` | Show violations for current project |
-| `ctrl dashboard state` | Full debug state dump (JSON) |
-| `ctrl dashboard clear` | Clear events for a project |
-| `ctrl dashboard open` | Open HUD in browser |
-| `ctrl dashboard url` | Print the HUD URL |
+| Command                     | What it does                           |
+| --------------------------- | -------------------------------------- |
+| `ctrl dashboard`            | Start the compliance HUD               |
+| `ctrl dashboard stop`       | Stop the HUD daemon                    |
+| `ctrl dashboard status`     | Check if running                       |
+| `ctrl dashboard restart`    | Stop + start                           |
+| `ctrl dashboard logs [-f]`  | Show daemon log (add `-f` to follow)   |
+| `ctrl dashboard events`     | Show recent events for current project |
+| `ctrl dashboard violations` | Show violations for current project    |
+| `ctrl dashboard state`      | Full debug state dump (JSON)           |
+| `ctrl dashboard clear`      | Clear events for a project             |
+| `ctrl dashboard open`       | Open HUD in browser                    |
+| `ctrl dashboard url`        | Print the HUD URL                      |
 
 #### ctrl client management
 
-| Command | What it does |
-|---------|-------------|
-| `ctrl new-client` | Onboard a new client |
-| `ctrl migrate` | Read-only diagnostic for existing setups |
-| `ctrl uninstall` | Safely remove all ctrl+shft symlinks + shell integration |
+| Command           | What it does                                             |
+| ----------------- | -------------------------------------------------------- |
+| `ctrl new-client` | Onboard a new client                                     |
+| `ctrl migrate`    | Read-only diagnostic for existing setups                 |
+| `ctrl uninstall`  | Safely remove all ctrl+shft symlinks + shell integration |
 
 #### ctrl session analysis (requires [sheal](https://github.com/liwala/sheal))
 
-| Command | What it does |
-|---------|-------------|
-| `ctrl retro` | Session retrospective → extract learnings into dotfiles |
-| `ctrl digest` | Categorized prompt digest |
-| `ctrl cost` | Token cost dashboard |
-| `ctrl ask "question"` | Search across session transcripts |
-| `ctrl learn` | Manage session learnings |
+| Command               | What it does                                            |
+| --------------------- | ------------------------------------------------------- |
+| `ctrl retro`          | Session retrospective → extract learnings into dotfiles |
+| `ctrl digest`         | Categorized prompt digest                               |
+| `ctrl cost`           | Token cost dashboard                                    |
+| `ctrl ask "question"` | Search across session transcripts                       |
+| `ctrl learn`          | Manage session learnings                                |
 
 ### shft — autonomous execution
 
-| Command | What it does |
-|---------|-------------|
-| `shft run` | HITL — run once while you watch |
-| `shft afk [n]` | AFK — autonomous loop (default 5 iterations) |
-| `shft status` | Is a loop running? How many issues open? |
-| `shft stop` | Stop a running AFK loop after current iteration |
-| `shft log [-f]` | Show shft log (add `-f` to follow) |
-| `shft issues` | List open issues in priority order |
-| `shft next` | Show the single next issue shft would pick |
-| `shft done [n]` | Show last n closed issues (default 10) |
-| `shft context` | Show what the agent will see when it starts |
-| `shft plan` | View `working/plan.md` |
-| `shft plan edit` | Open plan in `$EDITOR` |
-| `shft plan clear` | Clear the plan file |
-| `shft validate` | Run AFK pre-flight checks |
-| `shft mint` | Test-mint a GitHub App token |
-| `shft prompt` | Show `shft/prompt.md` |
+| Command           | What it does                                    |
+| ----------------- | ----------------------------------------------- |
+| `shft run`        | HITL — run once while you watch                 |
+| `shft afk [n]`    | AFK — autonomous loop (default 5 iterations)    |
+| `shft status`     | Is a loop running? How many issues open?        |
+| `shft stop`       | Stop a running AFK loop after current iteration |
+| `shft log [-f]`   | Show shft log (add `-f` to follow)              |
+| `shft issues`     | List open issues in priority order              |
+| `shft next`       | Show the single next issue shft would pick      |
+| `shft done [n]`   | Show last n closed issues (default 10)          |
+| `shft context`    | Show what the agent will see when it starts     |
+| `shft plan`       | View `working/plan.md`                          |
+| `shft plan edit`  | Open plan in `$EDITOR`                          |
+| `shft plan clear` | Clear the plan file                             |
+| `shft validate`   | Run AFK pre-flight checks                       |
+| `shft mint`       | Test-mint a GitHub App token                    |
+| `shft prompt`     | Show `shft/prompt.md`                           |
 
 ---
 
@@ -788,6 +788,7 @@ source ~/.bashrc
 Guardrails are enforced in CI by `.github/workflows/integrity.yml`.
 
 It validates:
+
 - source-of-truth language exists in `global.instructions.md` and `CLAUDE.base.md`
 - deprecated `disable-model-invocation` flags are absent from `skills/**/SKILL.md`
 - static integrity checks pass via `bash bin/validate-symlinks.sh --ci`
@@ -799,6 +800,7 @@ ctrl check               # or: bash ~/dotfiles/bin/validate-env.sh && bash ~/dot
 ```
 
 Notes:
+
 - Windows fallback copies are allowed when content matches the `~/dotfiles` source.
 - CI is stricter for deprecated skill flags; local `validate-symlinks.sh` reports them as warnings.
 
@@ -835,19 +837,19 @@ Alternatively: `bash ~/dotfiles/bin/start-hud.sh`
 
 ### What it tracks
 
-| Panel | What it shows |
-|-------|---------------|
-| **Project tabs** | Every project the agent touches — dotfiles, client projects, anything. Cross-project reads detected automatically via git root |
-| **Compliance rate** | Rolling compliance percentage across sessions with trend sparkline |
-| **Rules loaded** | Count of rules active in the current session, with active context count |
-| **Violations** | Real-time violation count this session |
-| **Sessions audited** | Total sessions processed by the compliance-audit skill |
-| **Active context** | Which stack contexts are active (nextjs, sanity, node, etc.) — detected by `detect-context.sh` |
-| **Loaded files** | Which instructions, skills, rules, and agents are loaded, with read timestamps and status badges |
-| **Session log** | Chronological event stream — context changes, task bookends, reads, compliance results |
-| **Compliance history** | Per-day compliance trend chart |
-| **Violations panel** | Recent violations with severity, rule reference, file location, and timestamp |
-| **Sidebar inventory** | Full inventory of all rules, skills, and agents with loaded/available status |
+| Panel                  | What it shows                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Project tabs**       | Every project the agent touches — dotfiles, client projects, anything. Cross-project reads detected automatically via git root |
+| **Compliance rate**    | Rolling compliance percentage across sessions with trend sparkline                                                             |
+| **Rules loaded**       | Count of rules active in the current session, with active context count                                                        |
+| **Violations**         | Real-time violation count this session                                                                                         |
+| **Sessions audited**   | Total sessions processed by the compliance-audit skill                                                                         |
+| **Active context**     | Which stack contexts are active (nextjs, sanity, node, etc.) — detected by `detect-context.sh`                                 |
+| **Loaded files**       | Which instructions, skills, rules, and agents are loaded, with read timestamps and status badges                               |
+| **Session log**        | Chronological event stream — context changes, task bookends, reads, compliance results                                         |
+| **Compliance history** | Per-day compliance trend chart                                                                                                 |
+| **Violations panel**   | Recent violations with severity, rule reference, file location, and timestamp                                                  |
+| **Sidebar inventory**  | Full inventory of all rules, skills, and agents with loaded/available status                                                   |
 
 ### Architecture
 
@@ -861,12 +863,12 @@ Cross-project tracking works automatically. When the agent reads files outside `
 
 ### Lifecycle commands
 
-| Command | What it does |
-|---------|-------------|
-| `ctrl dashboard` | Start daemon (background) |
-| `ctrl dashboard stop` | Stop daemon |
-| `ctrl dashboard status` | Check if running |
-| `ctrl dashboard restart` | Stop + start |
+| Command                  | What it does              |
+| ------------------------ | ------------------------- |
+| `ctrl dashboard`         | Start daemon (background) |
+| `ctrl dashboard stop`    | Stop daemon               |
+| `ctrl dashboard status`  | Check if running          |
+| `ctrl dashboard restart` | Stop + start              |
 
 Port defaults to `7823`. Override with `HUD_PORT=8080`.
 
@@ -898,7 +900,7 @@ See [`hud/README.md`](hud/README.md) for the full API reference, event types, au
 | CI Telemetry Reports   | AFK      | GitHub Actions daily reports + README badge for cost and accuracy                                                                   |
 | Enable OTEL            | HITL     | Turn on VS Code's built-in OpenTelemetry, document what it actually emits                                                           |
 | Accuracy Framework     | HITL     | Human scoring UX + automated proxy signals (test pass/fail, reverts, re-opened issues)                                              |
-| Telemetry HUD    | HITL     | Full telemetry HUD — cost, tokens, model distribution, accuracy, hallucination rate (extends existing HUD)    |
+| Telemetry HUD          | HITL     | Full telemetry HUD — cost, tokens, model distribution, accuracy, hallucination rate (extends existing HUD)                          |
 
 ### Key constraints
 
