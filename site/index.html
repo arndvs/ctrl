@@ -1995,7 +1995,7 @@
     </nav>
 
     <div class="mobile-overlay" aria-hidden="true"></div>
-    <aside class="mobile-drawer" aria-hidden="true">
+    <aside class="mobile-drawer" aria-hidden="true" inert>
         <ul class="mobile-drawer-links">
             <li><a href="#how">how it works</a></li>
             <li><a href="#skills">skills</a></li>
@@ -3749,20 +3749,26 @@ source ~/.zshrc    # zsh</pre>
 
             function open() {
                 btn.setAttribute('aria-expanded', 'true');
+                btn.setAttribute('aria-label', 'Close menu');
                 drawer.classList.add('open');
                 drawer.setAttribute('aria-hidden', 'false');
+                drawer.removeAttribute('inert');
                 overlay.classList.add('open');
                 overlay.setAttribute('aria-hidden', 'false');
                 document.body.style.overflow = 'hidden';
+                links[0].focus();
             }
 
             function close() {
                 btn.setAttribute('aria-expanded', 'false');
+                btn.setAttribute('aria-label', 'Open menu');
                 drawer.classList.remove('open');
                 drawer.setAttribute('aria-hidden', 'true');
+                drawer.setAttribute('inert', '');
                 overlay.classList.remove('open');
                 overlay.setAttribute('aria-hidden', 'true');
                 document.body.style.overflow = '';
+                btn.focus();
             }
 
             btn.addEventListener('click', function () {
@@ -3773,6 +3779,20 @@ source ~/.zshrc    # zsh</pre>
 
             links.forEach(function (link) {
                 link.addEventListener('click', close);
+            });
+
+            drawer.addEventListener('keydown', function (e) {
+                if (e.key !== 'Tab') return;
+                var focusable = drawer.querySelectorAll('a, button');
+                var first = focusable[0];
+                var last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
             });
 
             document.addEventListener('keydown', function (e) {
