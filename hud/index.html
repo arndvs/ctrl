@@ -1551,10 +1551,10 @@
     </div>
 
     <!-- SHUTDOWN CONFIRM -->
-    <div class="shutdown-overlay" id="shutdown-overlay">
+    <div class="shutdown-overlay" id="shutdown-overlay" role="dialog" aria-modal="true" aria-labelledby="kill-dialog-title">
         <div class="shutdown-dialog">
-            <h3>Kill HUD Daemon?</h3>
-            <p>This will stop the daemon process.<br>Restart with <code style="color:var(--accent)">bash ~/dotfiles/bin/start-hud.sh</code></p>
+            <h3 id="kill-dialog-title">Kill HUD Daemon?</h3>
+            <p>This will stop the daemon process.<br>Restart with <code style="color:var(--accent)">ctrl dashboard</code> <span style="color:var(--text-dim)">or</span> <code style="color:var(--accent)">bash ~/dotfiles/bin/start-hud.sh</code></p>
             <div class="shutdown-actions">
                 <button class="btn-cancel" id="kill-cancel">Cancel <kbd style="opacity:0.5;margin-left:0.4rem">Esc</kbd></button>
                 <button class="btn-confirm-kill" id="kill-confirm">Kill Daemon</button>
@@ -2147,12 +2147,17 @@
         // ── Kill daemon ───────────────────────────────────────────────────────────
         var shutdownOverlay = document.getElementById('shutdown-overlay');
 
+        var _killTrigger = null;
+
         function showKillDialog() {
+            _killTrigger = document.activeElement;
             shutdownOverlay.classList.add('visible');
+            document.getElementById('kill-cancel').focus();
         }
 
         function hideKillDialog() {
             shutdownOverlay.classList.remove('visible');
+            if (_killTrigger) _killTrigger.focus();
         }
 
         async function killDaemon() {

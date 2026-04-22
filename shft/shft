@@ -77,16 +77,18 @@ _shft_state_set() {
     local ts
     ts="$(date -u +%Y-%m-%dT%H:%M:%S)Z"
     if command -v python3 &>/dev/null; then
-        python3 -c "
-import json, os
-path = '$STATE_FILE'
+        python3 - "$STATE_FILE" "$field" "$value" <<'PYEOF'
+import json, os, sys, datetime
+path, field, value = sys.argv[1], sys.argv[2], sys.argv[3]
 try:
     d = json.load(open(path)) if os.path.exists(path) else {}
-except: d = {}
-d['$field'] = '$value'
-d['updated_at'] = __import__('datetime').datetime.utcnow().isoformat()
+except Exception:
+    d = {}
+d[field] = value
+d['updated_at'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
 json.dump(d, open(path, 'w'), indent=2)
-" 2>/dev/null || true
+PYEOF
+        true  # ignore python failures
     elif command -v jq &>/dev/null && [[ -f "$STATE_FILE" ]]; then
         jq --arg f "$field" --arg v "$value" --arg t "$ts" \
             '.[$f] = $v | .updated_at = $t' "$STATE_FILE" > "${STATE_FILE}.tmp" \
@@ -114,10 +116,10 @@ _require_gh() {
     fi
 }
 
-# Require sbx CLI (for AFK)
-_require_sbx() {
-    if ! command -v sbx &>/dev/null; then
-        red "sbx (Claude Code sandbox CLI) not found."
+# Require srt CLI (for AFK)
+_require_srt() {
+    if ! command -v srt &>/dev/null; then
+        red "srt (Anthropic sandbox runtime) not found."
         echo "  Required for AFK mode."
         echo "  See: https://docs.anthropic.com/en/docs/claude-code"
         exit 1
@@ -215,7 +217,7 @@ case "$CMD" in
         done
 
         _require_gh
-        _require_sbx
+        _require_srt
         _require_docker
 
         # Validate unless --force
