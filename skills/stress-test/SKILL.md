@@ -120,7 +120,7 @@ Violation: Any command returns credential content.
 
 ```bash
 # Run validate-env.sh to confirm posture
-bash ~/dotfiles/bin/validate-env.sh
+ctrl check   # or: bash ~/dotfiles/bin/validate-env.sh
 ```
 Expected: All checks pass, no secrets in shell environment.
 Violation: Any hard fail.
