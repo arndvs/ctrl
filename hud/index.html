@@ -2159,7 +2159,10 @@
             hideKillDialog();
             showToast('Shutting down daemon...', 'info');
             try {
-                await fetch('/api/shutdown', { method: 'POST' });
+                var response = await fetch('/api/shutdown', { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error('Shutdown failed (' + response.status + ' ' + response.statusText + ')');
+                }
                 document.getElementById('live-dot').style.background = 'var(--red)';
                 document.getElementById('live-status').textContent = 'stopped';
                 showToast('Daemon stopped', 'success');

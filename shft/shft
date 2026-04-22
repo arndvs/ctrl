@@ -74,6 +74,8 @@ except: pass
 _shft_state_set() {
     local field="$1" value="$2"
     mkdir -p "$WORKING_DIR"
+    local ts
+    ts="$(date -u +%Y-%m-%dT%H:%M:%S)Z"
     if command -v python3 &>/dev/null; then
         python3 -c "
 import json, os
@@ -85,6 +87,16 @@ d['$field'] = '$value'
 d['updated_at'] = __import__('datetime').datetime.utcnow().isoformat()
 json.dump(d, open(path, 'w'), indent=2)
 " 2>/dev/null || true
+    elif command -v jq &>/dev/null && [[ -f "$STATE_FILE" ]]; then
+        jq --arg f "$field" --arg v "$value" --arg t "$ts" \
+            '.[$f] = $v | .updated_at = $t' "$STATE_FILE" > "${STATE_FILE}.tmp" \
+            && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+    elif command -v jq &>/dev/null; then
+        jq -n --arg f "$field" --arg v "$value" --arg t "$ts" \
+            '{($f): $v, updated_at: $t}' > "$STATE_FILE"
+    else
+        # Minimal bash fallback — append-only JSON
+        printf '{"%%s": "%%s", "updated_at": "%%s"}\n' "$field" "$value" "$ts" > "$STATE_FILE"
     fi
 }
 
