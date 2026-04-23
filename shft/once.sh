@@ -10,4 +10,4 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_build_prompt.sh"
 trap 'rm -f "$PROMPT_FILE"' EXIT
 
-claude --permission-mode acceptEdits "$(cat "$PROMPT_FILE")"
+claude --permission-mode acceptEdits -- "$(cat "$PROMPT_FILE")"

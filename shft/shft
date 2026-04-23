@@ -35,10 +35,10 @@ fi
 source "$DOTFILES/bin/_lib.sh"
 
 # ── Python discovery ──────────────────────────────────────────────────────────
-# Resolve Python once at startup (venv-aware, Windows-safe).
-# find_python() from _lib.sh checks $VENV_DIR/Scripts/python.exe first,
-# avoiding the Windows Store python3 stub that passes `command -v` but
-# opens the Microsoft Store instead of executing.
+# Resolve Python once at startup (venv-aware).
+# find_python() from _lib.sh prefers $VENV_DIR/Scripts/python.exe (or bin/python),
+# falling back to system python3/python. When no Python is found, SHFT_PYTHON
+# stays empty and _py() returns non-zero so callers hit their || fallback.
 VENV_DIR="$DOTFILES/secrets/.venv"
 if find_python 2>/dev/null; then
     SHFT_PYTHON="$PYTHON"
@@ -49,6 +49,10 @@ fi
 # ── Helpers ───────────────────────────────────────────────────────────────────
 # dim is not in _lib.sh — define locally
 dim() { printf '\033[2m%s\033[0m\n' "$*"; }
+
+# Run Python from venv or fail (triggers || fallback). Never invokes bare python3
+# which may resolve to the Windows Store stub.
+_py() { [[ -n "$SHFT_PYTHON" ]] && "$SHFT_PYTHON" "$@"; }
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 LOCK_DIR="/tmp/shft-afk.lock"
@@ -364,7 +368,7 @@ case "$CMD" in
             --state open \
             --json number,title,labels,assignees,milestone \
             --limit 50 \
-            2>/dev/null | "${SHFT_PYTHON:-python3}" -c "
+            2>/dev/null | _py -c "
 import json, sys
 
 issues = json.load(sys.stdin)
@@ -415,7 +419,7 @@ for issue in sorted_issues:
             --state open \
             --json number,title,labels,body \
             --limit 20 \
-            2>/dev/null | "${SHFT_PYTHON:-python3}" -c "
+            2>/dev/null | _py -c "
 import json, sys
 
 issues = json.load(sys.stdin)
@@ -463,7 +467,7 @@ print(f\"  View: gh issue view {issue['number']}\")
             --state closed \
             --limit "$_limit" \
             --json number,title,closedAt,labels \
-            2>/dev/null | "${SHFT_PYTHON:-python3}" -c "
+            2>/dev/null | _py -c "
 import json, sys
 
 issues = json.load(sys.stdin)
@@ -565,7 +569,7 @@ for issue in issues:
 
         echo "  ── Open issues (what shft will pick from) ──"
         gh issue list --state open --limit 5 --json number,title \
-            2>/dev/null | "${SHFT_PYTHON:-python3}" -c "
+            2>/dev/null | _py -c "
 import json, sys
 issues = json.load(sys.stdin)
 for i in issues: print(f\"  #{i['number']}  {i['title']}\")
