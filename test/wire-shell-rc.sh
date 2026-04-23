@@ -66,13 +66,13 @@ _FUNC_BLOCK=$(sed -n '/^_wire_shell_rc() {$/,/^}$/p' "$BOOTSTRAP")
 
 # Create a sourceable file
 _SRC="$TMPDIR_ROOT/wire_shell_rc.sh"
-cat > "$_SRC" <<EOF
+cat > "$_SRC" <<'EOF'
 #!/usr/bin/env bash
-$_HARNESS
-$_SNIPPET_BLOCK
-)
-$_FUNC_BLOCK
 EOF
+printf '%s\n' "$_HARNESS" >> "$_SRC"
+printf '%s\n' "$_SNIPPET_BLOCK" >> "$_SRC"
+printf '%s\n' ')' >> "$_SRC"
+printf '%s\n' "$_FUNC_BLOCK" >> "$_SRC"
 
 echo
 echo "_wire_shell_rc() regression tests"
@@ -165,7 +165,7 @@ _assert_count         "exactly 1 load-secrets ref"        "$_test3_dir/.bashrc" 
 _assert_file_not_contains "legacy header removed"         "$_test3_dir/.bashrc" "# ── Secrets ──"
 
 # Verify backup was created
-_assert "backup created for legacy migration" test -f "$_test3_dir/.bashrc.bak."* 2>/dev/null || ls "$_test3_dir/.bashrc.bak."* >/dev/null 2>&1
+_assert "backup created for legacy migration" bash -c 'ls "$1"/.bashrc.bak.* >/dev/null 2>&1' _ "$_test3_dir"
 
 # ── Test 4: Updated snippet replaces old managed block ───
 

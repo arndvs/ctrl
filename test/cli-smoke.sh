@@ -10,10 +10,26 @@ SKIP=0
 FAILURES=()
 CMD_TIMEOUT=10  # seconds per command
 
+# Detect timeout binary (macOS coreutils provides gtimeout)
+TIMEOUT_BIN=""
+if command -v timeout >/dev/null 2>&1; then
+    TIMEOUT_BIN="timeout"
+elif command -v gtimeout >/dev/null 2>&1; then
+    TIMEOUT_BIN="gtimeout"
+fi
+
+_run_with_timeout() {
+    if [[ -n "$TIMEOUT_BIN" ]]; then
+        "$TIMEOUT_BIN" "$CMD_TIMEOUT" "$@"
+    else
+        "$@"
+    fi
+}
+
 _test() {
     local label="$1"; shift
     local output ec
-    if output=$(timeout "$CMD_TIMEOUT" "$@" 2>&1); then
+    if output=$(_run_with_timeout "$@" 2>&1); then
         PASS=$((PASS + 1))
         printf "  \033[32m✓\033[0m %s\n" "$label"
     else

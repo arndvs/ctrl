@@ -110,7 +110,7 @@ PYEOF
             '{($f): $v, updated_at: $t}' > "$STATE_FILE"
     else
         # Minimal bash fallback — append-only JSON
-        printf '{"'"$field"'": "'"$value"'", "updated_at": "'"$ts"'"}\n' > "$STATE_FILE"
+        printf '{"%s": "%s", "updated_at": "%s"}\n' "$field" "$value" "$ts" > "$STATE_FILE"
     fi
 }
 
