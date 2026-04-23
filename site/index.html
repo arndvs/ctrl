@@ -362,10 +362,57 @@
             }
         }
 
+        /* INTERACTIVE HERO TERMINAL */
+        .hero-prompt {
+            display: flex;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .hero-prompt-user {
+            color: var(--accent);
+        }
+
+        .hero-prompt-sep {
+            color: var(--text-dimmer);
+        }
+
+        .hero-prompt-path {
+            color: var(--accent);
+        }
+
+        .hero-prompt-dollar {
+            color: var(--text);
+        }
+
+        .hero-terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--mono);
+            font-size: 1.2rem;
+            color: var(--text);
+            caret-color: var(--accent);
+            padding: 0;
+            line-height: 1.9;
+        }
+
+        .hero-terminal-output {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            line-height: 1.9;
+        }
+
+        .hero-terminal-output.t-red {
+            color: var(--red);
+        }
+
         /* SECTIONS */
         .section {
             padding: 10rem 0;
             border-top: 1px solid var(--border);
+            scroll-margin-top: 6rem;
         }
 
         .section-num {
@@ -2106,7 +2153,11 @@
                             <div class="t-green">✓ Python .venv deps installed (incl. PyJWT)</div>
                             <div class="t-green">✓ supply chain hardened</div>
                             <div>&nbsp;</div>
-                            <div class="t-dim"># you're ready <span class="cursor"></span></div>
+                            <div class="t-green" style="font-weight:500;">ctrl+shft ready — type <span style="color:var(--accent);">ctrl help</span> to explore</div>
+                            <div>&nbsp;</div>
+                            <div class="hero-prompt">
+                                <span class="hero-prompt-user">ctrlshft</span><span class="hero-prompt-sep">:</span><span class="hero-prompt-path">~</span><span class="hero-prompt-dollar">$&nbsp;</span><input id="hero-terminal-input" class="hero-terminal-input" type="text" spellcheck="false" autocomplete="off" aria-label="Interactive terminal — type ctrl help">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3647,6 +3698,24 @@ source ~/.zshrc    # zsh</pre>
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
+        // Global anchor scroll — offset for fixed nav + force fade-in visible before measuring
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[href^="#"]');
+            if (!link) return;
+            const id = link.getAttribute('href').slice(1);
+            if (!id) return;
+            const target = document.getElementById(id);
+            if (!target) return;
+            e.preventDefault();
+            // Reveal target and its section parent so layout is settled
+            const section = target.closest('.fade-in') || target;
+            section.classList.add('visible');
+            target.classList.add('visible');
+            const navHeight = document.querySelector('nav')?.offsetHeight || 0;
+            const y = target.getBoundingClientRect().top + window.scrollY - navHeight - 24;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        });
+
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const text = btn.dataset.copy.replace(/&#10;/g, '\n');
@@ -3954,6 +4023,68 @@ source ~/.zshrc    # zsh</pre>
         }
 
         loadContributorsWhenVisible();
+
+        // Hero interactive terminal
+        (function () {
+            const input = document.getElementById('hero-terminal-input');
+            if (!input) return;
+
+            const body = input.closest('.terminal-body');
+            const promptLine = input.closest('.hero-prompt');
+
+            const COMMANDS = {
+                'ctrl help': () => {
+                    addOutput('Opening CLI reference…', 'hero-terminal-output t-green');
+                    setTimeout(() => {
+                        const target = document.getElementById('cli-reference');
+                        if (!target) return;
+                        // Force visible so getBoundingClientRect is accurate
+                        target.classList.add('visible');
+                        const navHeight = document.querySelector('nav')?.offsetHeight || 0;
+                        const y = target.getBoundingClientRect().top + window.scrollY - navHeight - 24;
+                        window.scrollTo({ top: y, behavior: 'instant' });
+                    }, 400);
+                },
+                'help': () => {
+                    addOutput('Available commands:', 'hero-terminal-output');
+                    addOutput('  ctrl help    — jump to CLI reference', 'hero-terminal-output');
+                    addOutput('  clear        — clear terminal', 'hero-terminal-output');
+                },
+                'clear': () => {
+                    body.querySelectorAll('.hero-terminal-output, .hero-history-line').forEach(el => el.remove());
+                }
+            };
+
+            function addOutput(text, className) {
+                const div = document.createElement('div');
+                div.className = className || 'hero-terminal-output';
+                div.textContent = text;
+                body.insertBefore(div, promptLine);
+            }
+
+            function addHistoryLine(cmd) {
+                const div = document.createElement('div');
+                div.className = 'hero-history-line';
+                div.innerHTML = '<span class="hero-prompt-user">ctrlshft</span><span class="hero-prompt-sep">:</span><span class="hero-prompt-path">~</span><span class="hero-prompt-dollar">$ </span>' + cmd.replace(/</g, '&lt;');
+                body.insertBefore(div, promptLine);
+            }
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key !== 'Enter') return;
+                const cmd = input.value.trim().toLowerCase();
+                if (!cmd) return;
+
+                addHistoryLine(input.value.trim());
+                input.value = '';
+
+                const handler = COMMANDS[cmd];
+                if (handler) {
+                    handler();
+                } else {
+                    addOutput('command not found: ' + cmd + ' — try "ctrl help"', 'hero-terminal-output t-red');
+                }
+            });
+        })();
     </script>
 
     <script>
